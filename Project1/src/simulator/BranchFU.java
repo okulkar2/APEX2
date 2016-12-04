@@ -3,6 +3,7 @@ package simulator;
 public class BranchFU {
 	
 	public  static int executeIntructionBranchALU(Instruction inputInst){
+		
 		int result=0;
 		switch (inputInst.getOperand()) {
 			case "BZ":
