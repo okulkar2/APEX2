@@ -1,13 +1,13 @@
 package simulator;
 
 import java.util.Scanner;
-/*Driver Class*/
+/*Driver Class */
 public class Driver {
 
 	private static Scanner in;
 
 	public static void main(String[] args) {
-		
+		 
 		
 		String file_name = args[0];
 		int specifiedNoOfCycles;
