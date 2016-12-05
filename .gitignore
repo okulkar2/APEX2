@@ -14,7 +14,7 @@ local.properties
 # Eclipse Core
 .project
 
-*.class
+**/*.class
 
 # External tool builders
 .externalToolBuilders/
