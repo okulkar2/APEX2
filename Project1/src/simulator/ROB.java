@@ -2,24 +2,24 @@ package simulator;
 
 public class ROB {
 	
-	Instruction [] queue;
+	ROBEntry[] queue;
 	int front;
 	int rear;
 	int maxsize;
 	
 	public ROB(int maxSizeIn){
 		maxsize = maxSizeIn;
-		queue = new Instruction[maxsize];
+		queue = new ROBEntry[maxsize];
 		front=-1;
 		rear=-1;
 	}
 	
-	public void enqueue(Instruction inputInst){
+	public void enqueue(ROBEntry entry){
 		
 		if(rear<(maxsize-1)){
 			//System.out.println("Code Here Rear:"+rear);
 			rear++;
-			queue[rear]=inputInst;
+			queue[rear]=entry;
 			if(front==-1){
 				front=0;
 			}
@@ -30,13 +30,13 @@ public class ROB {
 		}
 	}
 	
-	public Instruction dequeue(){
-		Instruction currentInst = null;
+	public ROBEntry dequeue(){
+		ROBEntry entry = null;
 		if(front==rear && rear==-1){
 			System.err.println("The Queue is empty");
 		}
 		else{
-			currentInst = queue[front];
+			entry = queue[front];
 			if(front==rear){
 				front=-1;
 				rear=-1;
@@ -44,7 +44,7 @@ public class ROB {
 			else
 				front++;
 		}
-		return currentInst;
+		return entry;
 		
 	}
 	
