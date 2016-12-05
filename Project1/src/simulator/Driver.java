@@ -1,7 +1,7 @@
 package simulator;
 
 import java.util.Scanner;
-
+/*Driver Class*/
 public class Driver {
 
 	private static Scanner in;
