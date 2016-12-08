@@ -3,7 +3,7 @@ package simulator;
 public class ROBEntry {
 
 	private int pcValue;
-	private Register destArch, destPhysical;
+	private String destArch, destPhysical;
 	private int result;
 	private boolean status;
 	private String instructionType;
@@ -14,16 +14,29 @@ public class ROBEntry {
 	public void setPcValue(int pcValue) {
 		this.pcValue = pcValue;
 	}
-	public Register getDestArch() {
+
+	/**
+	 * @return the destArch
+	 */
+	public String getDestArch() {
 		return destArch;
 	}
-	public void setDestArch(Register destArch) {
+	/**
+	 * @param destArch the destArch to set
+	 */
+	public void setDestArch(String destArch) {
 		this.destArch = destArch;
 	}
-	public Register getDestPhysical() {
+	/**
+	 * @return the destPhysical
+	 */
+	public String getDestPhysical() {
 		return destPhysical;
 	}
-	public void setDestPhysical(Register destPhysical) {
+	/**
+	 * @param destPhysical the destPhysical to set
+	 */
+	public void setDestPhysical(String destPhysical) {
 		this.destPhysical = destPhysical;
 	}
 	public int getResult() {
