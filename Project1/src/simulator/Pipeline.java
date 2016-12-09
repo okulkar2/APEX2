@@ -566,8 +566,7 @@ public class Pipeline {
 			urf.initRegisters();
 		}
 	}
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> branch 'master' of https://github.com/okulkar2/APEX2.git
+
+
