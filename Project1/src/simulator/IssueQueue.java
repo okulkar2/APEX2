@@ -75,4 +75,12 @@ public class IssueQueue {
 		return false;
 	}
 	
+	public void display() {
+		
+		System.out.println("Contents of Issue Queue");
+		for(Instruction instruction : issueQueueInstructions) {
+			
+			System.out.println(instruction.getInstruction());
+		}
+	}
 }
