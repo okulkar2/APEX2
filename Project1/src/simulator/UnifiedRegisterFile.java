@@ -1,6 +1,8 @@
 package simulator;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -11,12 +13,14 @@ public class UnifiedRegisterFile {
 	private Map<String,Register> archRegisters;
 	private Map<String,Register> physicalRegisters;
 	private Map<String,String> frontEndRat;
+	private List<Integer> freeList;
 	
 	public UnifiedRegisterFile() {
 		
 		archRegisters=new LinkedHashMap<String,Register>();
 		physicalRegisters=new LinkedHashMap<String,Register>();
 		frontEndRat=new LinkedHashMap<String,String>();
+		freeList=new ArrayList<Integer>();
 	}
 	
 	public void initRegisters() {
@@ -32,14 +36,19 @@ public class UnifiedRegisterFile {
 		
 		for(int i=0;i<16;i++)
 			frontEndRat.put("R"+i, null);
+		
+		for(int i=0;i<numPhysicalRegisters;i++) 
+			freeList.add(0);
 	}
 	
 	public boolean isPhysicalRegisterAvailable() {
 		
 		boolean flag=false;
 		
-		for(Entry<String, Register> entry : physicalRegisters.entrySet()) {
-			if(entry.getValue().isValid()) {
+		for(int i=0;i<freeList.size();i++) {
+			
+			if(freeList.get(i)==0) {
+				
 				flag=true;
 				break;
 			}
@@ -47,17 +56,21 @@ public class UnifiedRegisterFile {
 		return flag;
 	}
 	
-	public String getFreePhysicalRegister() {
+	public int getFreePhysicalRegister() {
 		
-		String physicalRegister=null;
+		int index=-1;
 		
-		for(Entry<String, Register> entry : physicalRegisters.entrySet()) {	
-			if(entry.getValue().isValid()) {
-				physicalRegister=entry.getKey();
+		for(int i=0;i<freeList.size();i++) {
+			
+			if(freeList.get(i)==0) {
+				
+				index=i;
 				break;
 			}
 		}
-		return physicalRegister;
+		
+		freeList.add(index, 1);
+		return index;
 	}
 	
 	public int getUrfSize() {
