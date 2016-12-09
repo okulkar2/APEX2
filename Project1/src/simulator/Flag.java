@@ -4,13 +4,23 @@ public class Flag {
 	
 	private static boolean forwardEXFlag;
 	private static boolean forwardMEMFlag;
-	private static boolean forwardStoreFlag;
 	private static boolean zeroFlag;
 	private static boolean stallFlag;
 	private static boolean branchFlag;
 	private static boolean ALUAvailable;
 	private static boolean MULAvailable;
 	private static boolean LSFUAvailable;
+	
+	public static void initializeFlags(){
+		stallFlag = false;
+		zeroFlag = false;
+		forwardEXFlag = false;
+		forwardMEMFlag = false;
+		branchFlag = false;
+		ALUAvailable = true;
+		MULAvailable = true;
+		LSFUAvailable = true;
+	}
 
 	public static boolean isALUAvailable() {
 		return ALUAvailable;
@@ -50,14 +60,6 @@ public class Flag {
 
 	public static void setForwardMEMFlag(boolean forwardMEMFlagIn) {
 		forwardMEMFlag = forwardMEMFlagIn;
-	}
-	
-	public static boolean isForwardStoreFlagSet() {
-		return forwardStoreFlag;
-	}
-
-	public static void setForwardStoreFlag(boolean forwardStoreFlagIn) {
-		forwardStoreFlag = forwardStoreFlagIn;
 	}
 
 	public static boolean isZeroFlag() {

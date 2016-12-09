@@ -9,18 +9,17 @@ public class Pipeline {
 
 	private static HashMap<String, Instruction> stages = new HashMap<String, Instruction>();
 	private static HashMap<String, Register> registerFile = new HashMap<String, Register>();
-	private static HashMap<String, PipelineRegister> pipelinestages = new HashMap<String, PipelineRegister>(
-			5);
-	private static HashMap<String, Integer> specialRegister = new HashMap<String, Integer>(
-			2);
+	private static HashMap<String, PipelineRegister> pipelinestages = new HashMap<String, PipelineRegister>(5);
+	private static HashMap<String, Integer> specialRegister = new HashMap<String, Integer>(2);
 	private static Integer[] memory = new Integer[4000];
 	private static int programCounter;
 	private String fetchInst;
 	boolean stall = false;
 	private static List<Boolean> freePhyRegisters = new ArrayList<Boolean>();
+	private List<Instruction> selectInstruction = new ArrayList<Instruction>();
 	static final int noOfRegisters = 16;
 	private static ROB rob = new ROB(noOfRegisters);
-	private static IssueQueue issueQ = new IssueQueue();
+	private static IssueQueue issueQ;
 
 	public Pipeline() {
 	}
@@ -34,12 +33,9 @@ public class Pipeline {
 		stages.put("Delay", null);
 		stages.put("MEM", null);
 		stages.put("WB", null);
-		Flag.setStallFlag(false);
-		Flag.setZeroFlag(false);
-		Flag.setForwardEXFlag(false);
-		Flag.setForwardMEMFlag(false);
-		Flag.setBranchFlag(false);
-
+		Flag.initializeFlags();
+		
+		issueQ = new IssueQueue(12);
 		for (int i = 0; i < 16; i++) {
 			registerFile.put("R" + i, new Register());
 		}
@@ -64,7 +60,13 @@ public class Pipeline {
 		}
 
 	}
-
+	
+	public Instruction
+	
+	
+	
+	
+	
 	public void execute() {
 
 		write();
