@@ -4,40 +4,40 @@ public class ROBEntry {
 
 	private int pcValue;
 	private String destArch, destPhysical;
+	private String savedRATEntry;
 	private int result;
 	private boolean status;
 	private String instructionType;
 
+	public ROBEntry() {
+
+		status=false;
+		result=-1;
+	}
+	
 	public int getPcValue() {
 		return pcValue;
 	}
 	public void setPcValue(int pcValue) {
 		this.pcValue = pcValue;
 	}
-
-	/**
-	 * @return the destArch
-	 */
 	public String getDestArch() {
 		return destArch;
 	}
-	/**
-	 * @param destArch the destArch to set
-	 */
 	public void setDestArch(String destArch) {
 		this.destArch = destArch;
 	}
-	/**
-	 * @return the destPhysical
-	 */
 	public String getDestPhysical() {
 		return destPhysical;
 	}
-	/**
-	 * @param destPhysical the destPhysical to set
-	 */
 	public void setDestPhysical(String destPhysical) {
 		this.destPhysical = destPhysical;
+	}
+	public String getSavedRATEntry() {
+		return savedRATEntry;
+	}
+	public void setSavedRATEntry(String savedRATEntry) {
+		this.savedRATEntry = savedRATEntry;
 	}
 	public int getResult() {
 		return result;
