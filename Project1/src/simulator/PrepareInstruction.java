@@ -115,12 +115,17 @@ public class PrepareInstruction {
 								entry=createROBEntry(instruction);
 								entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
 								rob.enqueue(entry);
-								String freeRegister=urf.getFreePhysicalRegister();
-								System.out.println("Free register : "+freeRegister);
-								instruction.setDest_physical(urf.getFreePhysicalRegister());
-								urf.getFrontEndRat().put(instruction.getDestination(), instruction.getDest_physical());
-								urf.getPhysicalRegisters().get(instruction.getDest_physical()).setValid(false);
-								issueQueue.putInstruction(instruction);
+								int freeRegisterIndex=urf.getFreePhysicalRegister();
+								if(freeRegisterIndex!=-1) {
+									
+									System.out.println("Free register : P"+freeRegisterIndex);
+									instruction.setDest_physical("P"+freeRegisterIndex);
+									urf.getFrontEndRat().put(instruction.getDestination(), instruction.getDest_physical());
+									urf.getPhysicalRegisters().get(instruction.getDest_physical()).setValid(false);
+									issueQueue.putInstruction(instruction);
+									
+								} else
+									System.out.println("Free register index is -1");
 								break;
 								
 			case Constants.STORE:
