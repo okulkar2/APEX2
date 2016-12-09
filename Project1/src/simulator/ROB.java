@@ -2,62 +2,97 @@ package simulator;
 
 public class ROB {
 
-	ROBEntry[] queue;
-
-	int front;
-	int rear;
-	int maxsize;
-
-	public ROB(int maxSizeIn) {
+	private ROBEntry[] queue;
+	private UnifiedRegisterFile urf;
+	private int front;
+	private int rear;
+	private int maxsize;
+	
+	public ROB(int maxSizeIn, UnifiedRegisterFile urfIn){
 		maxsize = maxSizeIn;
+		urf=urfIn;
 		queue = new ROBEntry[maxsize];
-		front = -1;
-		rear = -1;
+		front=-1;
+		rear=-1;
 	}
-
-	public void enqueue(ROBEntry entry) {
-
-		if (rear < (maxsize - 1)) {
-			// System.out.println("Code Here Rear:"+rear);
+	
+	public int enqueue(ROBEntry entry){
+		
+		if(rear<(maxsize-1)){
+			//System.out.println("Code Here Rear:"+rear);
+			//ROBEntry entry=createROBEntry(instruction);
 			rear++;
-			queue[rear] = entry;
-			if (front == -1) {
-				front = 0;
+			queue[rear]=entry;
+			if(front==-1){
+				front=0;
 			}
-			// System.out.println("Queue Element:"+queue[rear]+" Rear: "+rear);
-		} else {
-			System.err.println("The Queue is full");
+			return rear;
+			//System.out.println("Queue Element:"+queue[rear]+" Rear: "+rear);
+		}
+		else{
+			System.err.println("ROB full");
+			return -1;
 		}
 	}
-
-	public ROBEntry dequeue() {
+	
+	/*
+	private ROBEntry createROBEntry(Instruction instruction) {
+		
+		ROBEntry entry=new ROBEntry();
+		entry.setDestArch(instruction.getDestination());
+		entry.setDestPhysical(instruction.getDest_physical());
+		entry.setPcValue(instruction.getPc_value());
+		
+		if(instruction.getDestination()!=null)
+			entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
+		return entry;
+	}*/
+	
+	
+	public ROBEntry dequeue(){
 		ROBEntry entry = null;
-		if (front == rear && rear == -1) {
-			System.err.println("The Queue is empty");
-		} else {
+		if(front==rear && rear==-1){
+			System.err.println("ROB empty");
+		}
+		else{
 			entry = queue[front];
-			if (front == rear) {
-				front = -1;
-				rear = -1;
-			} else
+			if(front==rear){
+				front=-1;
+				rear=-1;
+			}
+			else
 				front++;
 		}
 		return entry;
-
+		
 	}
-
-	public boolean checkIfROBIsFull() {
-		if (rear == maxsize - 1) {
+	
+	public ROBEntry getROBEntry(int index) {
+		
+		ROBEntry entry = queue[index];
+		return entry;
+	}
+	
+	
+	public boolean isFreeSlotAvailable() {
+		
+		if(rear<=maxsize-1)
 			return true;
-		} else {
+		else
 			return false;
-		}
 	}
-	/*
-	 * public void printQueue(){
-	 * 
-	 * if(rear==-1 && front==-1){ System.out.println("Queue is Empty"); return;
-	 * } System.out.print("Queue Elements:"); for(int i=front;i<=rear;i++){
-	 * System.out.print(queue[i]+" "); } System.out.print("\n"); }
-	 */
+	
+	
+	/*public void printQueue(){
+		
+		if(rear==-1 && front==-1){
+			System.out.println("Queue is Empty");
+			return;
+		}
+		System.out.print("Queue Elements:");
+		for(int i=front;i<=rear;i++){
+			System.out.print(queue[i]+" ");
+		}
+		System.out.print("\n");
+	}*/
 }

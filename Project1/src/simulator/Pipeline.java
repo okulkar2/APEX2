@@ -12,7 +12,9 @@ public class Pipeline {
 	private static HashMap<String, Register> registerFile= new HashMap<String, Register>();
 	private static HashMap<String, PipelineRegister> pipelinestages = new HashMap<String, PipelineRegister>(5);
 	private static HashMap<String, Integer> specialRegister = new HashMap<String, Integer>(2);
+	private static List<Instruction> selectInstruction = new ArrayList<Instruction>();
 	private static Integer [] memory = new Integer[4000];
+	private int min_cycle=9999;
 	private static int programCounter;
 	private String fetchInst;
 	boolean stall = false;
@@ -101,6 +103,7 @@ public class Pipeline {
 	
 	public Instruction selectionIntruction() {
 		Instruction selectedInstruction=null;
+		min_cycle = 9999;
 		int size = issueQueue.getSize();
 		selectInstruction.clear();
 		
@@ -563,4 +566,8 @@ public class Pipeline {
 			urf.initRegisters();
 		}
 	}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> branch 'master' of https://github.com/okulkar2/APEX2.git
