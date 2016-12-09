@@ -124,6 +124,7 @@ public class PrepareInstruction {
 									urf.getPhysicalRegisters().get(instruction.getDest_physical()).setValid(false);
 									issueQueue.putInstruction(instruction);
 									
+									
 								} else
 									System.out.println("Free register index is -1");
 								break;
