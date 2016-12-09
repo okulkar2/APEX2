@@ -18,6 +18,7 @@ public class Instruction {
 	private int src1Value,src2Value;
 	private int literal;
 	private int pc_value;
+	private int cycle;
 	private String function_unit;
 	
 	public Instruction(){
@@ -30,11 +31,28 @@ public class Instruction {
 		function_unit = null;
 		src1Value = 0;
 		src2Value = 0;
+		cycle = 0;
 		src1 = true;
 		src2 = true;
 	}
 	
 	
+	/**
+	 * @return the cycle
+	 */
+	public int getCycle() {
+		return cycle;
+	}
+
+
+	/**
+	 * @param cycle the cycle to set
+	 */
+	public void setCycle(int cycleIn) {
+		cycle = cycleIn;
+	}
+
+
 	public String getInstruction() {
 		return instruction;
 	}

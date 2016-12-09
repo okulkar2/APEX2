@@ -15,7 +15,7 @@ public class Pipeline {
 	private static int programCounter;
 	private String fetchInst;
 	boolean stall = false;
-	private int minimum_cycle = 9999;
+	private int min_cycle = 9999;
 	private static List<Boolean> freePhyRegisters = new ArrayList<Boolean>();
 	private List<Instruction> selectInstruction = new ArrayList<Instruction>();
 	static final int noOfRegisters = 16;
@@ -69,7 +69,43 @@ public class Pipeline {
 		
 		for(int i=0; i<size; i++){
 			selectedInstruction = issueQ.getInstruction(i);
+			switch(selectedInstruction.getFunction_unit()){
+			case Constants.INTFU:
+				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isINTFUAvailable()){
+					selectInstruction.add(selectedInstruction);
+				}
+				break;
+			case Constants.MULFU:
+				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isMULFUAvailable()){
+					selectInstruction.add(selectedInstruction);
+				}
+				break;
+			case Constants.LSFU:
+				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isLSFUAvailable()){
+					selectInstruction.add(selectedInstruction);
+				}
+				break;
+			case Constants.BRANCHFU:
+				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isBRANCHFUAvailable()){
+					selectInstruction.add(selectedInstruction);
+				}
+				break;
+			}
 		}
+		
+		if(selectInstruction.size()!=0){
+			size = selectInstruction.size();
+			for(int i=0;i<size;i++){
+				if(selectInstruction.get(i).getCycle() < min_cycle){
+					min_cycle = selectInstruction.get(i).getCycle();
+					selectedInstruction = selectInstruction.get(i);
+				}
+			}
+		}
+		else{
+			selectedInstruction = null;
+		}
+		
 		return selectedInstruction;
 		
 	}

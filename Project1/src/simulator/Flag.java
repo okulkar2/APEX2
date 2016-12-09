@@ -7,9 +7,10 @@ public class Flag {
 	private static boolean zeroFlag;
 	private static boolean stallFlag;
 	private static boolean branchFlag;
-	private static boolean ALUAvailable;
-	private static boolean MULAvailable;
+	private static boolean INTFUAvailable;
+	private static boolean MULFUAvailable;
 	private static boolean LSFUAvailable;
+	private static boolean BRANCHFUAvailable;
 	
 	public static void initializeFlags(){
 		stallFlag = false;
@@ -17,34 +18,85 @@ public class Flag {
 		forwardEXFlag = false;
 		forwardMEMFlag = false;
 		branchFlag = false;
-		ALUAvailable = true;
-		MULAvailable = true;
+		INTFUAvailable = true;
+		MULFUAvailable = true;
 		LSFUAvailable = true;
+		BRANCHFUAvailable = true;
 	}
 
-	public static boolean isALUAvailable() {
-		return ALUAvailable;
+	
+
+	/**
+	 * @return the iNTFUAvailable
+	 */
+	public static boolean isINTFUAvailable() {
+		return INTFUAvailable;
 	}
 
-	public static void setALUAvailable(boolean ALUAvailableIn) {
-		ALUAvailable = ALUAvailableIn;
+
+
+	/**
+	 * @param iNTFUAvailable the iNTFUAvailable to set
+	 */
+	public static void setINTFUAvailable(boolean iNTFUAvailable) {
+		INTFUAvailable = iNTFUAvailable;
 	}
 
-	public static boolean isMULAvailable() {
-		return MULAvailable;
+
+
+	/**
+	 * @return the mULFUAvailable
+	 */
+	public static boolean isMULFUAvailable() {
+		return MULFUAvailable;
 	}
 
-	public static void setMULAvailable(boolean MULAvailableIn) {
-		MULAvailable = MULAvailableIn;
+
+
+	/**
+	 * @param mULFUAvailable the mULFUAvailable to set
+	 */
+	public static void setMULFUAvailable(boolean mULFUAvailable) {
+		MULFUAvailable = mULFUAvailable;
 	}
 
+
+
+	/**
+	 * @return the lSFUAvailable
+	 */
 	public static boolean isLSFUAvailable() {
 		return LSFUAvailable;
 	}
 
-	public static void setLSFUAvailable(boolean LSFUAvailableIn) {
-		LSFUAvailable = LSFUAvailableIn;
+
+
+	/**
+	 * @param lSFUAvailable the lSFUAvailable to set
+	 */
+	public static void setLSFUAvailable(boolean lSFUAvailable) {
+		LSFUAvailable = lSFUAvailable;
 	}
+
+
+
+	/**
+	 * @return the bRANCHFUAvailable
+	 */
+	public static boolean isBRANCHFUAvailable() {
+		return BRANCHFUAvailable;
+	}
+
+
+
+	/**
+	 * @param bRANCHFUAvailable the bRANCHFUAvailable to set
+	 */
+	public static void setBRANCHFUAvailable(boolean bRANCHFUAvailable) {
+		BRANCHFUAvailable = bRANCHFUAvailable;
+	}
+
+
 
 	public static boolean isForwardEXFlagSet() {
 		return forwardEXFlag;
