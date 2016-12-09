@@ -52,10 +52,10 @@ public class Pipeline {
 		rob=new ROB(40, urf);
 		prepareInstruction=new PrepareInstruction(urf,rob,issueQueue);
 		
-		Flag.setALUavailable(true);
-		Flag.setMULavailable(true);
-		Flag.setBranchavailable(true);
-		Flag.setLSFUavailable(true);
+		Flag.setINTFUAvailable(true);
+		Flag.setMULFUAvailable(true);
+		Flag.setBRANCHFUAvailable(true);
+		Flag.setLSFUAvailable(true);
 		Flag.setBranchFlag(false);
 	}
 	
@@ -86,7 +86,7 @@ public class Pipeline {
 			Instruction mulInstruction=stages.get(Constants.MUL4);
 			rob.getROBEntry(mulInstruction.getRobIndex()).setResult(mulInstruction.getDestValue());
 			stages.put(Constants.MUL4, null);
-			Flag.setMULavailable(true);
+			Flag.setMULFUAvailable(true);
 			// setMUL flag available
 		}
 		
@@ -98,6 +98,55 @@ public class Pipeline {
 		}
 	}
 	
+	
+	public Instruction selectionIntruction() {
+		Instruction selectedInstruction=null;
+		int size = issueQueue.getSize();
+		selectInstruction.clear();
+		
+		for(int i=0; i<size; i++){
+			selectedInstruction = issueQueue.getInstruction(i);
+			switch(selectedInstruction.getFunction_unit()){
+			case Constants.INTFU:
+				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isINTFUAvailable()){
+					selectInstruction.add(selectedInstruction);
+				}
+				break;
+			case Constants.MULFU:
+				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isMULFUAvailable()){
+					selectInstruction.add(selectedInstruction);
+				}
+				break;
+			case Constants.LSFU:
+				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isLSFUAvailable()){
+					selectInstruction.add(selectedInstruction);
+				}
+				break;
+			case Constants.BRANCHFU:
+				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isBRANCHFUAvailable()){
+					selectInstruction.add(selectedInstruction);
+				}
+				break;
+			}
+		}
+		
+		if(selectInstruction.size()!=0){
+			size = selectInstruction.size();
+			for(int i=0;i<size;i++){
+				if(selectInstruction.get(i).getCycle() < min_cycle){
+					min_cycle = selectInstruction.get(i).getCycle();
+					selectedInstruction = selectInstruction.get(i);
+				}
+			}
+		}
+		else{
+			selectedInstruction = null;
+		}
+		
+		return selectedInstruction;
+		
+	}
+	
 	private void executeStage() {
 		
 		aluFU.performOperation();
@@ -106,7 +155,7 @@ public class Pipeline {
 		
 		// take instruction from issue queue;
 		Instruction currentInstruction=stages.get(Constants.R2_DISPATCH);
-		if(currentInstruction!=null && !currentInstruction.getOpcode().equalsIgnoreCase(Constants.HALT)) {
+		if(currentInstruction!=null && !currentInstruction.getOperand().equalsIgnoreCase(Constants.HALT)) {
 		
 			int result;
 			switch(currentInstruction.getFunction_unit()) {
@@ -115,7 +164,7 @@ public class Pipeline {
 									if(stages.get(Constants.ALU1)==null) {
 										
 										stages.put(Constants.ALU1, currentInstruction);
-										Flag.setALUavailable(false);
+										Flag.setINTFUAvailable(false);
 										result=FunctionUnit.executeIntruction(currentInstruction);
 										currentInstruction.setDestValue(result);
 									}
@@ -125,7 +174,7 @@ public class Pipeline {
 									if(stages.get(Constants.MUL1)==null) {
 										
 										stages.put(Constants.MUL1, currentInstruction);
-										Flag.setMULavailable(false);
+										Flag.setMULFUAvailable(false);
 										result=FunctionUnit.executeIntruction(currentInstruction);
 										currentInstruction.setDestValue(result);
 									}
@@ -145,7 +194,7 @@ public class Pipeline {
 									if(stages.get(Constants.LSFU1)==null) {
 						
 										stages.put(Constants.LSFU1, currentInstruction);
-										Flag.setLSFUavailable(false);
+										Flag.setLSFUAvailable(false);
 										result=FunctionUnit.executeIntruction(currentInstruction);
 										currentInstruction.setDestValue(result);
 									}
@@ -166,7 +215,7 @@ public class Pipeline {
 	
 	private void rename2Dispatch() {
 		
-		if(issueQueue.isIQEntryAvailable() && urf.isPhysicalRegisterAvailable() && rob.isFreeSlotAvailable()) {
+		if(issueQueue.isIQFull() && urf.isPhysicalRegisterAvailable() && rob.isFreeSlotAvailable()) {
 
 			if(stages.get(Constants.DECODE_R1) != null) {
 				
@@ -198,7 +247,7 @@ public class Pipeline {
 	
 	public void readSourceValues(Instruction instruction) {
 		
-		switch(instruction.getOpcode()) {
+		switch(instruction.getOperand()) {
 		
 			case Constants.ADD:
 			case Constants.SUB:
@@ -314,14 +363,15 @@ public class Pipeline {
 		
 		if(inputInst.getSource1()!=null && inputInst.isSrc1Valid()==false){
 			Register result = registerFile.get(inputInst.getSource1());
-			if(MemInst!=null && !MemInst.getOpcode().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource1())){
+			if(MemInst!=null && !MemInst.getOperand().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource1())){
 				Flag.setForwardEXFlag(true);
 				inputInst.setSrc1Valid(true);
 			}
 			else{
-				if(MemInst!=null && MemInst.getOpcode().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource1())){
-					if(inputInst.getOpcode().equalsIgnoreCase("STORE")){
-						Flag.setForwardStoreFlag(true);
+				if(MemInst!=null && MemInst.getOperand().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource1())){
+					if(inputInst.getOperand().equalsIgnoreCase("STORE")){
+						
+						//Flag.setForwardStoreFlag(true);
 						inputInst.setSrc1Valid(true);
 					}
 				}
@@ -341,7 +391,7 @@ public class Pipeline {
 		
 		if(inputInst.getSource2()!=null && inputInst.isSrc2Valid()==false){
 			Register result = registerFile.get(inputInst.getSource2());
-			if(MemInst!=null && !MemInst.getOpcode().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource2())){
+			if(MemInst!=null && !MemInst.getOperand().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource2())){
 				Flag.setForwardEXFlag(true);
 				inputInst.setSrc2Valid(true);
 			}
@@ -391,12 +441,12 @@ public class Pipeline {
 		
 		if(inputInst.getSource1()!=null && inputInst.isSrc1Valid()==false){
 			Register result = registerFile.get(inputInst.getSource1());
-			if(MemInst!=null && !MemInst.getOpcode().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource1())){
+			if(MemInst!=null && !MemInst.getOperand().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource1())){
 				Flag.setForwardEXFlag(true);
 				inputInst.setSrc1Valid(true);
 			}
 			else{
-				if(MemInst!=null && MemInst.getOpcode().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource1())){
+				if(MemInst!=null && MemInst.getOperand().equalsIgnoreCase("LOAD") && pipelinestages.get("MEM").getRegister()!=null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(inputInst.getSource1())){
 					Flag.setForwardMEMFlag(true);;
 					inputInst.setSrc1Valid(true);
 				}
