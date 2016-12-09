@@ -161,7 +161,15 @@ public class Instruction {
 	public void setSrc2Value(int src2ValueIn) {
 		src2Value = src2ValueIn;
 	}
+	
+	public int getDestValue() {
+		return destValue;
+	}
 
+	public void setDestValue(int destValue) {
+		this.destValue = destValue;
+	}
+	
 	public int getRobIndex() {
 		return robIndex;
 	}
