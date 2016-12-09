@@ -15,6 +15,7 @@ public class Pipeline {
 	private static int programCounter;
 	private String fetchInst;
 	boolean stall = false;
+	private int minimum_cycle = 9999;
 	private static List<Boolean> freePhyRegisters = new ArrayList<Boolean>();
 	private List<Instruction> selectInstruction = new ArrayList<Instruction>();
 	static final int noOfRegisters = 16;
@@ -61,7 +62,17 @@ public class Pipeline {
 
 	}
 	
-	public Instruction
+	public Instruction selectionIntruction(){
+		Instruction selectedInstruction=null;
+		int size = issueQ.getSize();
+		selectInstruction.clear();
+		
+		for(int i=0; i<size; i++){
+			selectedInstruction = issueQ.getInstruction(i);
+		}
+		return selectedInstruction;
+		
+	}
 	
 	
 	

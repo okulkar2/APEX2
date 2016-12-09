@@ -5,13 +5,11 @@ import java.util.List;
 
 public class IssueQueue {
 	int iqCapacity;
-	int currentCapacity;
 	List<Instruction> issueQueueInstructions = new ArrayList<>();
 	
 	
 	public IssueQueue(int iqCapacityIn){
 		iqCapacity = iqCapacityIn;
-		currentCapacity = 0;
 	}
 	
 	
@@ -50,17 +48,19 @@ public class IssueQueue {
 		this.issueQueueInstructions = issueQueueInstructions;
 	}
 
+	public int getSize(){
+		return issueQueueInstructions.size();
+	}
 
-
-	public Instruction get(int index){
+	public Instruction getInstruction(int index){
 		return issueQueueInstructions.get(index);
 	}
 	
-	public void remove(int index){
+	public void removeInstruction(int index){
 		issueQueueInstructions.remove(index);
 	}
 	
-	public void put(Instruction issueQueueInstruction) {
+	public void putInstruction(Instruction issueQueueInstruction) {
 		issueQueueInstructions.add(issueQueueInstruction);
 	}
 
