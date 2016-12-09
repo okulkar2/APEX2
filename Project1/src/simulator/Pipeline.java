@@ -270,48 +270,25 @@ public class Pipeline {
 					}
 
 					if (currentInst.getSource1() != null) {
-						if (Flag.isForwardEXFlagSet() == true
-								&& pipelinestages.get("MEM").getRegister() != null
-								&& pipelinestages
-										.get("MEM")
-										.getRegister()
-										.equalsIgnoreCase(
-												currentInst.getSource1())) {
-							currentInst.setSrc1Value(pipelinestages.get("MEM")
-									.getValue());
+						if (Flag.isForwardEXFlagSet() == true && pipelinestages.get("MEM").getRegister() != null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(currentInst.getSource1())) {
+							currentInst.setSrc1Value(pipelinestages.get("MEM").getValue());
 							Flag.setForwardEXFlag(false);
 						} else {
-							if (Flag.isForwardMEMFlagSet() == true
-									&& pipelinestages.get("WB").getRegister() != null
-									&& pipelinestages
-											.get("WB")
-											.getRegister()
-											.equalsIgnoreCase(
-													currentInst.getSource1())) {
-								currentInst.setSrc1Value(pipelinestages.get(
-										"WB").getValue());
+							if (Flag.isForwardMEMFlagSet() == true && pipelinestages.get("WB").getRegister() != null && pipelinestages.get("WB").getRegister().equalsIgnoreCase(currentInst.getSource1())) {
+								currentInst.setSrc1Value(pipelinestages.get("WB").getValue());
 								Flag.setForwardMEMFlag(false);
 							} else {
-								currentInst.setSrc1Value(registerFile.get(
-										currentInst.getSource1()).getValue());
+								currentInst.setSrc1Value(registerFile.get(currentInst.getSource1()).getValue());
 							}
 						}
 					}
 
 					if (currentInst.getSource2() != null) {
-						if (Flag.isForwardEXFlagSet() == true
-								&& pipelinestages.get("MEM").getRegister() != null
-								&& pipelinestages
-										.get("MEM")
-										.getRegister()
-										.equalsIgnoreCase(
-												currentInst.getSource2())) {
-							currentInst.setSrc2Value(pipelinestages.get("MEM")
-									.getValue());
+						if (Flag.isForwardEXFlagSet() == true && pipelinestages.get("MEM").getRegister() != null && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(currentInst.getSource2())) {
+							currentInst.setSrc2Value(pipelinestages.get("MEM").getValue());
 							Flag.setForwardEXFlag(false);
 						} else {
-							if (Flag.isForwardMEMFlagSet() == true
-									&& pipelinestages.get("WB").getRegister() != null
+							if (Flag.isForwardMEMFlagSet() == true && pipelinestages.get("WB").getRegister() != null
 									&& pipelinestages
 											.get("WB")
 											.getRegister()
@@ -345,56 +322,34 @@ public class Pipeline {
 				if (Flag.isStallFlagSet() == false) {
 					int result = 0;
 					if (currentInst.getSource1() != null) {
-						if (Flag.isForwardEXFlagSet() == true
-								&& pipelinestages
-										.get("MEM")
-										.getRegister()
-										.equalsIgnoreCase(
-												currentInst.getSource1())) {
-							currentInst.setSrc1Value(pipelinestages.get("MEM")
-									.getValue());
-							result = BranchFU
-									.executeIntructionBranchALU(currentInst);
+						if (Flag.isForwardEXFlagSet() == true && pipelinestages.get("MEM").getRegister().equalsIgnoreCase(currentInst.getSource1())) {
+							currentInst.setSrc1Value(pipelinestages.get("MEM").getValue());
+							result = BranchFU.executeIntructionBranchALU(currentInst);
 							if (currentInst.getDestination() == null) {
-								PipelineRegister pipeResult = pipelinestages
-										.get("Branch");
+								PipelineRegister pipeResult = pipelinestages.get("Branch");
 								pipeResult.setPipelineRegister(null, 0);
 								// System.out.println("Branch Register:"+pipeResult.getRegister()+" Value:"+pipeResult.getValue());
 								pipelinestages.put("Branch", pipeResult);
 							}
 							Flag.setForwardEXFlag(false);
 						} else {
-							if (Flag.isForwardMEMFlagSet() == true
-									&& pipelinestages
-											.get("WB")
-											.getRegister()
-											.equalsIgnoreCase(
-													currentInst.getSource1())) {
-								currentInst.setSrc1Value(pipelinestages.get(
-										"WB").getValue());
-								result = BranchFU
-										.executeIntructionBranchALU(currentInst);
+							if (Flag.isForwardMEMFlagSet() == true && pipelinestages.get("WB").getRegister().equalsIgnoreCase(currentInst.getSource1())) {
+								currentInst.setSrc1Value(pipelinestages.get("WB").getValue());
+								result = BranchFU.executeIntructionBranchALU(currentInst);
 								if (currentInst.getDestination() == null) {
-									PipelineRegister pipeResult = pipelinestages
-											.get("Branch");
+									PipelineRegister pipeResult = pipelinestages.get("Branch");
 									pipeResult.setPipelineRegister(null, 0);
 									// System.out.println("Branch Register:"+pipeResult.getRegister()+" Value:"+pipeResult.getValue());
 									pipelinestages.put("Branch", pipeResult);
 								}
 								Flag.setForwardEXFlag(false);
 							} else {
-								if (currentInst.getSource1() != null
-										&& !currentInst.getSource1()
-												.equalsIgnoreCase("X")) {
-									currentInst.setSrc1Value(registerFile.get(
-											currentInst.getSource1())
-											.getValue());
+								if (currentInst.getSource1() != null && !currentInst.getSource1().equalsIgnoreCase("X")) {
+									currentInst.setSrc1Value(registerFile.get(currentInst.getSource1()).getValue());
 								}
-								result = BranchFU
-										.executeIntructionBranchALU(currentInst);
+								result = BranchFU.executeIntructionBranchALU(currentInst);
 								if (currentInst.getDestination() == null) {
-									PipelineRegister pipeResult = pipelinestages
-											.get("Branch");
+									PipelineRegister pipeResult = pipelinestages.get("Branch");
 									pipeResult.setPipelineRegister(null, 0);
 									// System.out.println("Branch Register:"+pipeResult.getRegister()+" Value:"+pipeResult.getValue());
 									pipelinestages.put("Branch", pipeResult);

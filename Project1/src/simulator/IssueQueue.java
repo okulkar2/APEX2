@@ -4,10 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IssueQueue {
-	int currentInstruction = 1;
-	int iqCapacity = 12;
+	int iqCapacity;
+	int currentCapacity;
 	List<Instruction> issueQueueInstructions = new ArrayList<>();
-	Boolean[] status = new Boolean[iqCapacity];
+	
+	
+	public IssueQueue(int iqCapacityIn){
+		iqCapacity = iqCapacityIn;
+		currentCapacity = 0;
+	}
+	
+	
 
 	/**
 	 * @return the iqCapacity
@@ -16,49 +23,56 @@ public class IssueQueue {
 		return iqCapacity;
 	}
 
+
+
 	/**
-	 * @param iqCapacity
-	 *            the iqCapacity to set
+	 * @param iqCapacity the iqCapacity to set
 	 */
 	public void setIqCapacity(int iqCapacity) {
 		this.iqCapacity = iqCapacity;
 	}
 
+
+
 	/**
-	 * @return the issueQueueInstruction
+	 * @return the issueQueueInstructions
 	 */
-	public List<Instruction> getIssueQueueInstruction() {
+	public List<Instruction> getIssueQueueInstructions() {
 		return issueQueueInstructions;
 	}
 
+
+
 	/**
-	 * @param issueQueueInstruction
-	 *            the issueQueueInstruction to set
+	 * @param issueQueueInstructions the issueQueueInstructions to set
 	 */
-	public void setIssueQueueInstruction(List<Instruction> issueQueueInstruction) {
-		this.issueQueueInstructions = issueQueueInstruction;
+	public void setIssueQueueInstructions(List<Instruction> issueQueueInstructions) {
+		this.issueQueueInstructions = issueQueueInstructions;
 	}
 
-	public void setIssueQueueInstructionList(Instruction issueQueueInstruction) {
-		issueQueueInstructions.add(issueQueueInstruction);
-		status[currentInstruction] = true;
-		currentInstruction++;
 
+
+	public Instruction getInstruction(int index){
+		return issueQueueInstructions.get(index);
+	}
+	
+	public void remove(int index){
+		issueQueueInstructions.remove(index);
+	}
+	
+	public void put(Instruction issueQueueInstruction) {
+		issueQueueInstructions.add(issueQueueInstruction);
 	}
 
 	public Instruction getIssueQueueInstructionatIndex(int index) {
 		return issueQueueInstructions.get(index);
 	}
 
-	public int checkIfIQIsFull() {
-		int i = 0;
-		while (i < iqCapacity) {
-			if (status[currentInstruction].equals(false)) {
-				return i;
-			}
-			i++;
+	public boolean isIQFull() {
+		if(issueQueueInstructions.size() <= iqCapacity){
+			return true;
 		}
-		return -1;
-
+		return false;
 	}
+	
 }
