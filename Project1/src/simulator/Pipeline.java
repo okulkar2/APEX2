@@ -67,11 +67,12 @@ public class Pipeline {
 		//writeback();
 		//executeStage();
 		System.out.println();
-		urf.display();
-		issueQueue.display();
 		rename2Dispatch();
 		decodeRename1();
 		fetch();
+		urf.displayFrontEndRAT();
+		urf.displayFreeList();
+		issueQueue.display();
 	}
 
 	private void writeback() {
