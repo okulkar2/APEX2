@@ -52,7 +52,7 @@ public class IssueQueue {
 
 
 
-	public Instruction getInstruction(int index){
+	public Instruction get(int index){
 		return issueQueueInstructions.get(index);
 	}
 	
