@@ -12,18 +12,20 @@ public class Instruction {
 	
 	private String instruction;
 	private String operand;
-	private String destination;
+	private String destination, dest_physical;
 	private String source1,source2;
 	private boolean src1,src2;
-	private int src1Value,src2Value;
+	private int src1Value,src2Value,destValue;
 	private int literal;
 	private int pc_value;
 	private int cycle;
 	private String function_unit;
+	private int robIndex;
 	
 	public Instruction(){
 		operand = null;
 		destination = null;
+		dest_physical=null;
 		source1 = null;
 		source2 = null;
 		pc_value = 0;
@@ -34,6 +36,7 @@ public class Instruction {
 		cycle = 0;
 		src1 = true;
 		src2 = true;
+		robIndex=-1;
 	}
 	
 	
@@ -83,6 +86,14 @@ public class Instruction {
 		destination = destinationIn;
 	}
 	
+	public String getDest_physical() {
+		return dest_physical;
+	}
+
+	public void setDest_physical(String dest_physical) {
+		this.dest_physical = dest_physical;
+	}
+
 	public String getFunction_unit() {
 		return function_unit;
 	}
@@ -151,6 +162,15 @@ public class Instruction {
 		src2Value = src2ValueIn;
 	}
 
+	public int getRobIndex() {
+		return robIndex;
+	}
+
+	public void setRobIndex(int robIndex) {
+		this.robIndex = robIndex;
+	}
+	
+	
 	public String toString(){
 		return "PC Value:"+pc_value+" Destination:"+destination+" Source1:"+source1+" Source2:"+source2+" literal:"+literal+" Function_Unit:"+function_unit;
 	}
