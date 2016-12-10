@@ -185,6 +185,7 @@ public class PrepareInstruction {
 		entry.setDestArch(instruction.getDestination());
 		entry.setDestPhysical(instruction.getDest_physical());
 		entry.setPcValue(instruction.getPc_value());
+		entry.setStatus(false);
 		return entry;
 	}
 }
