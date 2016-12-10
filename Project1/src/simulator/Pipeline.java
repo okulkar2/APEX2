@@ -28,7 +28,7 @@ public class Pipeline {
 	private IssueQueue issueQueue;
 	private PrepareInstruction prepareInstruction;
 	
-	public void initialize() {
+	public void initialize(int urfSize) {
 		
 		stages.put(Constants.FETCH, null);
 		stages.put(Constants.DECODE_R1, null);
@@ -49,10 +49,15 @@ public class Pipeline {
 			memory[i] = 0;
 		}
 
-		urf=new UnifiedRegisterFile();
+		urf=new UnifiedRegisterFile(urfSize);
+		urf.initRegisters();
 		issueQueue=new IssueQueue(12);
 		rob=new ROB(40, urf);
 		prepareInstruction=new PrepareInstruction(urf,rob,issueQueue);
+		
+		aluFU=new ALUFU(Pipeline.this);
+		multiplyFU=new MultiplyFU(Pipeline.this);
+		loadStoreFU=new LoadStoreFU(Pipeline.this);
 		
 		Flag.setINTFUAvailable(true);
 		Flag.setMULFUAvailable(true);
@@ -64,15 +69,17 @@ public class Pipeline {
 	
 	public void execute() {
 	
-		//writeback();
-		//executeStage();
 		System.out.println();
+		writeback();
+		executeStage();
 		rename2Dispatch();
 		decodeRename1();
 		fetch();
+		printStages();
 		urf.displayFrontEndRAT();
+		urf.displayPhysicalRegisters();
 		urf.displayFreeList();
-		issueQueue.display();
+		//issueQueue.display();
 	}
 
 	private void writeback() {
@@ -81,7 +88,10 @@ public class Pipeline {
 			
 			Instruction aluInstruction=stages.get(Constants.ALU2);
 			rob.getROBEntry(aluInstruction.getRobIndex()).setResult(aluInstruction.getDestValue());
+			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValue(aluInstruction.getDestValue());
+			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValid(true);
 			stages.put(Constants.ALU2, null);
+			
 		}
 		
 		if(stages.get(Constants.MUL4)!=null) {
@@ -89,6 +99,7 @@ public class Pipeline {
 			Instruction mulInstruction=stages.get(Constants.MUL4);
 			rob.getROBEntry(mulInstruction.getRobIndex()).setResult(mulInstruction.getDestValue());
 			stages.put(Constants.MUL4, null);
+			stages.put(Constants.MUL1, null);
 			Flag.setMULFUAvailable(true);
 			// setMUL flag available
 		}
@@ -157,7 +168,7 @@ public class Pipeline {
 		multiplyFU.performOperation();
 		loadStoreFU.performOperation();
 		
-		// take instruction from issue queue;
+		//Instruction currentInstruction=selectionIntruction();
 		Instruction currentInstruction=stages.get(Constants.R2_DISPATCH);
 		if(currentInstruction!=null && !currentInstruction.getOperand().equalsIgnoreCase(Constants.HALT)) {
 		
@@ -169,8 +180,6 @@ public class Pipeline {
 										
 										stages.put(Constants.ALU1, currentInstruction);
 										Flag.setINTFUAvailable(false);
-										result=FunctionUnit.executeIntruction(currentInstruction);
-										currentInstruction.setDestValue(result);
 									}
 									break;
 						
@@ -227,10 +236,7 @@ public class Pipeline {
 				prepareInstruction.addEntries(instruction);
 				stages.put(Constants.R2_DISPATCH, instruction);
 				stages.put(Constants.DECODE_R1, null);
-				System.out.println(Constants.R2_DISPATCH+" : "+instruction.getInstruction());
-			
-			}  else
-				System.out.println(Constants.R2_DISPATCH+" : NOP");
+			}  
 		}
 	}
 	
@@ -242,11 +248,8 @@ public class Pipeline {
 			String[] tokens = instruction.getInstruction().split("[ ,#]+");
 			prepareInstruction.prepare(instruction, tokens);
 			stages.put(Constants.DECODE_R1, instruction);
-			stages.put(Constants.FETCH, null);
-			System.out.println(Constants.DECODE_R1+" : "+instruction.getInstruction());
-			
-		} else
-			System.out.println(Constants.DECODE_R1+" : NOP");
+			stages.put(Constants.FETCH, null);			
+		} 
 	}
 	
 	public void readSourceValues(Instruction instruction) {
@@ -281,12 +284,10 @@ public class Pipeline {
 				newInstruction.setPc_value(programCounter);
 				stages.put(Constants.FETCH, newInstruction);
 				programCounter = programCounter + 4;
-				System.out.println(Constants.FETCH+" : "+fetchInst);
 			
 			} else {
 
-				stages.put("F", null);
-				System.out.println(Constants.FETCH+" : NOP");
+				stages.put(Constants.FETCH, null);
 			}
 		}
 		else if(Flag.isBranchFlagSet()==true){
@@ -301,7 +302,7 @@ public class Pipeline {
 			Cache.setInstCount(result);
 			programCounter = counter;
 			Flag.setBranchFlag(false);
-			stages.put("F", null);
+			stages.put(Constants.FETCH, null);
 		}
 		else{
 			//System.out.println("Fetch Instruction:"+fetchInst);
@@ -507,67 +508,66 @@ public class Pipeline {
 	}
 	
 	
-	
-	
 	public void printStages(){
-		if(stages.get("F")!=null){
-			System.out.println("Fetch Stage:"+stages.get("F").getInstruction());
+		if(stages.get(Constants.FETCH)!=null){
+			System.out.println("Fetch Stage:"+stages.get(Constants.FETCH).getInstruction());
 		}
 		else{
 			System.out.println("Fetch Stage: NOP");
 		}
-		if(stages.get("D/RF")!=null){
-			System.out.println("Decode Stage:"+stages.get("D/RF").getInstruction());
+		if(stages.get(Constants.DECODE_R1)!=null){
+			System.out.println("Decode/R1 Stage:"+stages.get(Constants.DECODE_R1).getInstruction());
 		}
 		else{
-			System.out.println("Decode Stage: NOP");
+			System.out.println("Decode/Rename1 Stage: NOP");
 		}
-		if(stages.get("IntALU1")!=null){
-			System.out.println("Integer ALU1 Stage:"+stages.get("IntALU1").getInstruction());
+		
+		if(stages.get(Constants.R2_DISPATCH)!=null){
+			System.out.println("R2/Dispatch Stage:"+stages.get(Constants.R2_DISPATCH).getInstruction());
+		}
+		else{
+			System.out.println("R2/Dispatch Stage: NOP");
+		}
+		
+		if(stages.get(Constants.ALU1)!=null){
+			System.out.println("Integer ALU1 Stage:"+stages.get(Constants.ALU1).getInstruction());
 		}
 		else{
 			System.out.println("Integer ALU1 Stage: NOP");
 		}
-		if(stages.get("BranchALU")!=null){
-			System.out.println("Branch FU Stage:"+stages.get("BranchALU").getInstruction());
+		
+		if(stages.get(Constants.ALU2)!=null){
+			System.out.println("Integer ALU2 Stage:"+stages.get(Constants.ALU2).getInstruction());
+		}
+		else{
+			System.out.println("Integer ALU2 Stage: NOP");
+		}
+		
+		if(stages.get(Constants.MUL1)!=null){
+			System.out.println("MUL Stage:"+stages.get(Constants.MUL1).getInstruction());
+		}
+		else{
+			System.out.println("MUL Stage: NOP");
+		}
+		if(stages.get(Constants.BRANCH)!=null){
+			System.out.println("Branch FU Stage:"+stages.get(Constants.BRANCH).getInstruction());
 		}
 		else{
 			System.out.println("Branch FU Stage: NOP");
 		}
-		if(stages.get("IntALU2")!=null){
-			System.out.println("IntALU2 Stage:"+stages.get("IntALU2").getInstruction());
+		if(stages.get(Constants.LSFU1)!=null){
+			System.out.println("LSFU1 Stage:"+stages.get(Constants.LSFU1).getInstruction());
 		}
 		else{
-			System.out.println("IntALU2 Stage: NOP");
+			System.out.println("LSFU1 Stage: NOP");
 		}
-		if(stages.get("Delay")!=null){
-			System.out.println("Delay Stage:"+stages.get("Delay").getInstruction());
-		}
-		else{
-			System.out.println("Delay Stage: NOP");
-		}
-		if(stages.get("MEM")!=null){
-			System.out.println("MEM Stage:"+stages.get("MEM").getInstruction());
+		if(stages.get(Constants.LSFU2)!=null){
+			System.out.println("LSFU2 Stage:"+stages.get(Constants.LSFU2).getInstruction());
 		}
 		else{
-			System.out.println("MEM Stage: NOP");
-		}
-		if(stages.get("WB")!=null){
-			System.out.println("WB Stage:"+stages.get("WB").getInstruction());
-		}
-		else{
-			System.out.println("WB4 Stage: NOP");
+			System.out.println("LSFU2 Stage: NOP");
 		}
 	}
-	
-	public void setUrfSize(int n) {
-		
-		if(urf!=null) {
-			urf.setUrfSize(n);
-			urf.initRegisters();
-		}
-	}
-
 }
 
 
