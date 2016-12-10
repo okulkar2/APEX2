@@ -67,6 +67,27 @@ public class ROB {
 		
 	}
 	
+	public int removeFromTail(){
+		
+		int rearvalue = 0;
+		if(front==rear && rear==-1){
+			System.err.println("ROB empty");
+		}
+		else{
+			if(front==rear){
+				front=-1;
+				rear=-1;
+				rearvalue = -1;
+			}
+			else{
+				rearvalue = rear;
+				rear--;
+			}
+		}
+		return rearvalue;
+		
+	}
+
 	public ROBEntry getROBEntry(int index) {
 		
 		ROBEntry entry = queue[index];
