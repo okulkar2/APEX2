@@ -118,8 +118,15 @@ public class Pipeline {
 		if(stages.get(Constants.LSFU2)!=null) {
 			
 			Instruction lsInstruction=stages.get(Constants.LSFU2);
-			rob.getROBEntry(lsInstruction.getRobIndex()).setResult(lsInstruction.getDestValue());
-			rob.getROBEntry(lsInstruction.getRobIndex()).setStatus(true);
+			if(lsInstruction.getOperand().equalsIgnoreCase(Constants.LOAD)) {
+				
+				rob.getROBEntry(lsInstruction.getRobIndex()).setResult(lsInstruction.getDestValue());
+				rob.getROBEntry(lsInstruction.getRobIndex()).setStatus(true);
+				urf.getPhysicalRegisters().get(lsInstruction.getDest_physical()).setValid(true);
+			
+			} else if(lsInstruction.getOperand().equalsIgnoreCase(Constants.STORE))	
+				rob.getROBEntry(lsInstruction.getRobIndex()).setStatus(true);
+			
 			stages.put(Constants.LSFU2, null);
 		}
 		
@@ -168,6 +175,10 @@ public class Pipeline {
 					selectedInstruction = LSInstructions.get(i);
 				}
 			}
+			
+			System.out.println("Selected instruction "+selectedInstruction);
+			System.out.println("src1 valid "+selectedInstruction.isSrc1Valid());
+			System.out.println("src2 valid "+selectedInstruction.isSrc2Valid());
 			if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isLSFUAvailable()){
 				selectInstruction.add(selectedInstruction);
 			}
@@ -269,6 +280,7 @@ public class Pipeline {
 	private void resolveDependencies() {
 		
 		List<Instruction> instructionList=issueQueue.getIssueQueueInstructions();
+		
 		if(instructionList!=null && !instructionList.isEmpty()) {
 			
 			for(Instruction instruction : instructionList) {
@@ -301,7 +313,9 @@ public class Pipeline {
 				stages.put(Constants.R2_DISPATCH, instruction);
 				stages.put(Constants.DECODE_R1, null);
 				Flag.setStallFlag(false);
-			}  
+			
+			}  else
+				stages.put(Constants.R2_DISPATCH, null);
 		} else
 			Flag.setStallFlag(true);
 	}

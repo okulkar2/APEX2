@@ -124,6 +124,10 @@ public class ROB {
 									front++;
 									break;
 				case Constants.LOAD:
+									urf.getArchRegisters().get(entry.getDestArch()).setValue(entry.getResult());
+									System.out.println("Saved RAT entry : "+entry.getSavedRATEntry());
+									urf.getFreeList().put(entry.getSavedRATEntry(), true);
+									front++;
 									break;
 				case Constants.STORE:
 									front++;
