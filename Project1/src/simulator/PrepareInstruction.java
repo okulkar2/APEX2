@@ -101,7 +101,8 @@ public class PrepareInstruction {
 	public void addEntries(Instruction instruction) {
 		
 		ROBEntry entry=null;
-		
+		String physicalRegister;
+		int robIndex;
 		switch(instruction.getOperand()) {
 		
 			case Constants.ADD:
@@ -109,28 +110,67 @@ public class PrepareInstruction {
 			case Constants.AND:
 			case Constants.OR:
 			case Constants.EXOR:
-			case Constants.MOVC:
 			case Constants.MUL:
-			case Constants.LOAD:
+								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
+								instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
 								entry=createROBEntry(instruction);
 								entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
-								rob.enqueue(entry);
-								String physicalRegister=urf.getFreePhysicalRegister();
-								System.out.println("Physical register : "+physicalRegister);
+								robIndex=rob.enqueue(entry);
+								instruction.setRobIndex(robIndex);
+								physicalRegister=urf.getFreePhysicalRegister();
+								//System.out.println("Physical register : "+physicalRegister);
 								instruction.setDest_physical(physicalRegister);
 								urf.getFrontEndRat().put(instruction.getDestination(), instruction.getDest_physical());
 								urf.getPhysicalRegisters().get(instruction.getDest_physical()).setValid(false);
 								urf.getFreeList().put(physicalRegister, false);
 								issueQueue.putInstruction(instruction);
 								break;
-								
+			case Constants.MOVC:
+								instruction.setSrc1Valid(true);
+								instruction.setSrc2Valid(true);
+								entry=createROBEntry(instruction);
+								entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
+								robIndex=rob.enqueue(entry);
+								instruction.setRobIndex(robIndex);
+								physicalRegister=urf.getFreePhysicalRegister();
+								//System.out.println("Physical register : "+physicalRegister);
+								instruction.setDest_physical(physicalRegister);
+								urf.getFrontEndRat().put(instruction.getDestination(), instruction.getDest_physical());
+								urf.getPhysicalRegisters().get(instruction.getDest_physical()).setValid(false);
+								urf.getFreeList().put(physicalRegister, false);
+								issueQueue.putInstruction(instruction);
+								break;
+			case Constants.LOAD:
+								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
+								instruction.setSrc2Valid(true);
+								entry=createROBEntry(instruction);
+								entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
+								robIndex=rob.enqueue(entry);
+								instruction.setRobIndex(robIndex);
+								physicalRegister=urf.getFreePhysicalRegister();
+								//System.out.println("Physical register : "+physicalRegister);
+								instruction.setDest_physical(physicalRegister);
+								urf.getFrontEndRat().put(instruction.getDestination(), instruction.getDest_physical());
+								urf.getPhysicalRegisters().get(instruction.getDest_physical()).setValid(false);
+								urf.getFreeList().put(physicalRegister, false);
+								issueQueue.putInstruction(instruction);
+								break;
 			case Constants.STORE:
+								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
+								instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
+								entry=createROBEntry(instruction);
+								robIndex=rob.enqueue(entry);
+								instruction.setRobIndex(robIndex);
+								issueQueue.putInstruction(instruction);
+								break;
 			case Constants.BZ:
 			case Constants.BNZ:
+								
 			case Constants.BAL:
 			case Constants.JUMP:
 								entry=createROBEntry(instruction);
-								rob.enqueue(entry);
+								robIndex=rob.enqueue(entry);
+								instruction.setRobIndex(robIndex);
 								instruction.setDest_physical(null);
 								issueQueue.putInstruction(instruction);
 								break;

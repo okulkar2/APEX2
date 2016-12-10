@@ -3,12 +3,10 @@ package simulator;
 public class LoadStoreFU {
 
 	private Pipeline pipeline;
-	private IHelper helper;
 	
-	public LoadStoreFU(Pipeline pipelineIn, IHelper helperIn) {
+	public LoadStoreFU(Pipeline pipelineIn) {
 
 		pipeline=pipelineIn;
-		helper=helperIn;
 	}
 	
 	

@@ -1,8 +1,6 @@
 package simulator;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -13,14 +11,15 @@ public class UnifiedRegisterFile {
 	private Map<String,Register> archRegisters;
 	private Map<String,Register> physicalRegisters;
 	private Map<String,String> frontEndRat;
-	private List<Integer> freeList;
+	private Map<String,Boolean> freeList;
 	
-	public UnifiedRegisterFile() {
+	public UnifiedRegisterFile(int urfSizeIn) {
 		
+		urfSize=urfSizeIn;
 		archRegisters=new LinkedHashMap<String,Register>();
 		physicalRegisters=new LinkedHashMap<String,Register>();
 		frontEndRat=new LinkedHashMap<String,String>();
-		freeList=new ArrayList<Integer>();
+		freeList=new LinkedHashMap<String,Boolean>();
 	}
 	
 	public void initRegisters() {
@@ -35,19 +34,19 @@ public class UnifiedRegisterFile {
 			physicalRegisters.put("P"+i, new Register());
 		
 		for(int i=0;i<16;i++)
-			frontEndRat.put("R"+i, null);
+			frontEndRat.put("R"+i, "P"+i);
 		
 		for(int i=0;i<numPhysicalRegisters;i++) 
-			freeList.add(0);
+			freeList.put("P"+i,true);
 	}
 	
 	public boolean isPhysicalRegisterAvailable() {
 		
 		boolean flag=false;
 		
-		for(int i=0;i<freeList.size();i++) {
+		for(Entry<String, Boolean> entry : freeList.entrySet()) {
 			
-			if(freeList.get(i)==0) {
+			if(entry.getValue()) {
 				
 				flag=true;
 				break;
@@ -56,21 +55,21 @@ public class UnifiedRegisterFile {
 		return flag;
 	}
 	
-	public int getFreePhysicalRegister() {
+	public String getFreePhysicalRegister() {
 		
-		int index=-1;
+		String physicalRegister=null;
 		
-		for(int i=0;i<freeList.size();i++) {
+		for(Entry<String, Boolean> entry : freeList.entrySet()) {
 			
-			if(freeList.get(i)==0) {
+			if(entry.getValue()) {
 				
-				index=i;
+				physicalRegister=entry.getKey();
 				break;
+				
 			}
 		}
 		
-		freeList.add(index, 1);
-		return index;
+		return physicalRegister;
 	}
 	
 	public int getUrfSize() {
@@ -105,13 +104,42 @@ public class UnifiedRegisterFile {
 		this.frontEndRat = frontEndRat;
 	}
 	
-	public void display() {
+	public Map<String, Boolean> getFreeList() {
+		return freeList;
+	}
+
+	public void setFreeList(Map<String, Boolean> freeList) {
+		this.freeList = freeList;
+	}
+
+	public void displayFrontEndRAT() {
 		
+		System.out.println("FRONT END RAT : ");
 		for(Entry<String, String> entry : frontEndRat.entrySet()) {
 			
-			System.out.println(entry.getKey()+" : "+entry.getValue());
+			System.out.print("("+entry.getKey()+","+entry.getValue()+")");
 		}
+		System.out.println();
+	}
+	
+	public void displayFreeList() {
 		
+		System.out.println("FREE LIST : ");
+		for(Entry<String, Boolean> entry : freeList.entrySet()) {
+			
+			System.out.print("("+entry.getKey()+","+entry.getValue()+")");
+		}
+		System.out.println();
+	}
+	
+	public void displayPhysicalRegisters() {
+		
+		System.out.println("PHYSICAL REGISTERS: ");
+		for(Entry<String, Register> entry : physicalRegisters.entrySet()) {
+			
+			System.out.print("("+entry.getKey()+","+entry.getValue().getValue()+")");
+		}
+		System.out.println();
 	}
 	
 }

@@ -37,17 +37,16 @@ public class Driver {
 					case 1:
 							cache = new Cache(file_name);
 							cache.execute();
+							System.out.println("\nEnter URF size : ");
+							input = in.nextLine();
 							simulator = new Pipeline();
-							simulator.initialize();
+							simulator.initialize(Integer.parseInt(input));
 							break;
 					case 2:
 							int i=0;
 							System.out.println("\nEnter no. of cycles : ");
 							input = in.nextLine();
 							specifiedNoOfCycles = Integer.parseInt(input);
-							System.out.println("\nEnter URF size : ");
-							input = in.nextLine();
-							simulator.setUrfSize(Integer.parseInt(input));
 							while(i < specifiedNoOfCycles){
 								simulator.execute();
 								i++;

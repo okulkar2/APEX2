@@ -3,12 +3,10 @@ package simulator;
 public class MultiplyFU {
 
 	private Pipeline pipeline;
-	private IHelper helper;
-	
-	public MultiplyFU(Pipeline pipelineIn, IHelper helperIn) {
+
+	public MultiplyFU(Pipeline pipelineIn) {
 
 		pipeline=pipelineIn;
-		helper=helperIn;
 	}
 	
 	
@@ -31,7 +29,7 @@ public class MultiplyFU {
 		if(pipeline.getStages().get(Constants.MUL1)!=null) {
 			
 			pipeline.getStages().put(Constants.MUL2, pipeline.getStages().get(Constants.MUL1));
-			pipeline.getStages().put(Constants.MUL1, null);
+			//pipeline.getStages().put(Constants.MUL1, null);
 		}
 	}
 }
