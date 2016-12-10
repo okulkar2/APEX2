@@ -83,6 +83,16 @@ public class ROB {
 	}
 	
 	
+	public void retire() {
+		
+		ROBEntry entry=getROBEntry(front);
+		if(entry!=null && entry.isStatus()) {
+			urf.getArchRegisters().get(entry.getDestArch()).setValue(entry.getResult());
+			urf.getFreeList().put(entry.getSavedRATEntry(), true);
+			front++;
+		}
+	}
+	
 	/*public void printQueue(){
 		
 		if(rear==-1 && front==-1){

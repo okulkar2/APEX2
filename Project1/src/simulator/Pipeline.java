@@ -85,10 +85,13 @@ public class Pipeline {
 
 	private void writeback() {
 		
+		rob.retire();
+		
 		if(stages.get(Constants.ALU2)!=null) {
 			
 			Instruction aluInstruction=stages.get(Constants.ALU2);
 			rob.getROBEntry(aluInstruction.getRobIndex()).setResult(aluInstruction.getDestValue());
+			rob.getROBEntry(aluInstruction.getRobIndex()).setStatus(true);
 			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValue(aluInstruction.getDestValue());
 			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValid(true);
 			stages.put(Constants.ALU2, null);
@@ -99,6 +102,9 @@ public class Pipeline {
 			
 			Instruction mulInstruction=stages.get(Constants.MUL4);
 			rob.getROBEntry(mulInstruction.getRobIndex()).setResult(mulInstruction.getDestValue());
+			rob.getROBEntry(mulInstruction.getRobIndex()).setStatus(true);
+			urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValue(mulInstruction.getDestValue());
+			urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValid(true);
 			stages.put(Constants.MUL4, null);
 			stages.put(Constants.MUL1, null);
 			Flag.setMULFUAvailable(true);
