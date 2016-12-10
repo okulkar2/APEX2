@@ -90,6 +90,10 @@ public class ROB {
 
 	public ROBEntry getROBEntry(int index) {
 		
+		if(front==rear && rear==-1){
+			System.err.println("ROB empty");
+			return null;
+		}
 		ROBEntry entry = queue[index];
 		return entry;
 	}

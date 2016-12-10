@@ -77,6 +77,7 @@ public class Pipeline {
 		fetch();
 		printStages();
 		urf.displayFrontEndRAT();
+		urf.displayArchRegisters();
 		urf.displayPhysicalRegisters();
 		urf.displayFreeList();
 		System.out.println("Issue queue size : "+issueQueue.getSize());
@@ -186,6 +187,7 @@ public class Pipeline {
 					selectedInstruction = selectInstruction.get(i);
 				}
 			}
+			
 		}
 		else{
 			selectedInstruction = null;
@@ -201,10 +203,12 @@ public class Pipeline {
 		multiplyFU.performOperation();
 		loadStoreFU.performOperation();
 		
-		//Instruction currentInstruction=selectionIntruction();
-		Instruction currentInstruction=stages.get(Constants.R2_DISPATCH);
+		Instruction currentInstruction=selectionIntruction();
+		//Instruction currentInstruction=stages.get(Constants.R2_DISPATCH);
 		if(currentInstruction!=null && !currentInstruction.getOperand().equalsIgnoreCase(Constants.HALT)) {
 		
+			System.out.println("Selection logic : "+currentInstruction.getInstruction());
+			issueQueue.removeInstruction(currentInstruction);
 			int result;
 			switch(currentInstruction.getFunction_unit()) {
 			

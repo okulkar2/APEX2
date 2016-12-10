@@ -142,4 +142,13 @@ public class UnifiedRegisterFile {
 		System.out.println();
 	}
 	
+	public void displayArchRegisters() {
+		
+		System.out.println("ARCH REGISTERS: ");
+		for(Entry<String, Register> entry : archRegisters.entrySet()) {
+			
+			System.out.print("("+entry.getKey()+","+entry.getValue().getValue()+")");
+		}
+		System.out.println();
+	}
 }
