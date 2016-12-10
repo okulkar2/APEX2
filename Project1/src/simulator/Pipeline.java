@@ -115,7 +115,10 @@ public class Pipeline {
 	
 	public Instruction selectionIntruction() {
 		Instruction selectedInstruction=null;
+		List<Instruction> LSInstructions = new ArrayList<Instruction>(3);
+		List<Instruction> BranchInstructions = new ArrayList<Instruction>(3);
 		min_cycle = 9999;
+		int minimum =9999;
 		int size = issueQueue.getSize();
 		selectInstruction.clear();
 		
@@ -133,15 +136,38 @@ public class Pipeline {
 				}
 				break;
 			case Constants.LSFU:
-				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isLSFUAvailable()){
-					selectInstruction.add(selectedInstruction);
-				}
+				LSInstructions.add(selectedInstruction);
 				break;
 			case Constants.BRANCHFU:
-				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isBRANCHFUAvailable()){
-					selectInstruction.add(selectedInstruction);
-				}
+				BranchInstructions.add(selectedInstruction);
 				break;
+			}
+		}
+		
+		if(LSInstructions.size()!=0){
+			size = LSInstructions.size();
+			for(int i=0; i<size; i++){
+				if(LSInstructions.get(i).getCycle() < minimum){
+					minimum = LSInstructions.get(i).getCycle();
+					selectedInstruction = LSInstructions.get(i);
+				}
+			}
+			if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isLSFUAvailable()){
+				selectInstruction.add(selectedInstruction);
+			}
+		}
+		
+		if(BranchInstructions.size()!=0){
+			minimum = 9999;
+			size = BranchInstructions.size();
+			for(int i=0; i<size; i++){
+				if(BranchInstructions.get(i).getCycle() < minimum){
+					minimum = BranchInstructions.get(i).getCycle();
+					selectedInstruction = BranchInstructions.get(i);
+				}
+			}
+			if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isBRANCHFUAvailable()){
+				selectInstruction.add(selectedInstruction);
 			}
 		}
 		
