@@ -112,10 +112,31 @@ public class ROB {
 		
 		ROBEntry entry=getROBEntry(front);
 		if(entry!=null && entry.isStatus()) {
-			urf.getArchRegisters().get(entry.getDestArch()).setValue(entry.getResult());
-			urf.getFreeList().put(entry.getSavedRATEntry(), true);
-			front++;
+			
+			String instructionType=entry.getInstructionType();
+			
+			switch(instructionType) {
+			
+				case Constants.R2R:
+									urf.getArchRegisters().get(entry.getDestArch()).setValue(entry.getResult());
+									System.out.println("Saved RAT entry : "+entry.getSavedRATEntry());
+									urf.getFreeList().put(entry.getSavedRATEntry(), true);
+									front++;
+									break;
+				case Constants.LOAD:
+									break;
+				case Constants.STORE:
+									front++;
+									break;
+						
+				case Constants.BRANCH:
+									break;
+			
+			}
+			
 		}
+		else
+			System.out.println("Rat entry is null");
 	}
 	
 	/*public void printQueue(){
