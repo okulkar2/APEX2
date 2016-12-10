@@ -237,6 +237,7 @@ public class Pipeline {
 									if(stages.get(Constants.ALU1)==null) {
 										
 										stages.put(Constants.ALU1, currentInstruction);
+										readSourceValues(currentInstruction);
 										Flag.setINTFUAvailable(false);
 									}
 									break;
@@ -245,6 +246,7 @@ public class Pipeline {
 									if(stages.get(Constants.MUL1)==null) {
 										
 										stages.put(Constants.MUL1, currentInstruction);
+										readSourceValues(currentInstruction);
 										Flag.setMULFUAvailable(false);
 										result=FunctionUnit.executeIntruction(currentInstruction);
 										currentInstruction.setDestValue(result);
@@ -265,6 +267,7 @@ public class Pipeline {
 									if(stages.get(Constants.LSFU1)==null) {
 						
 										stages.put(Constants.LSFU1, currentInstruction);
+										readSourceValues(currentInstruction);
 										Flag.setLSFUAvailable(false);
 										result=FunctionUnit.executeIntruction(currentInstruction);
 										currentInstruction.setDestValue(result);
