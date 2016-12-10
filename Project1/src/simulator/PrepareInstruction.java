@@ -115,6 +115,7 @@ public class PrepareInstruction {
 								instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
 								entry=createROBEntry(instruction);
 								entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
+								entry.setInstructionType(Constants.R2R);
 								robIndex=rob.enqueue(entry);
 								instruction.setRobIndex(robIndex);
 								physicalRegister=urf.getFreePhysicalRegister();
@@ -128,6 +129,7 @@ public class PrepareInstruction {
 			case Constants.MOVC:
 								entry=createROBEntry(instruction);
 								entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
+								entry.setInstructionType(Constants.R2R);
 								robIndex=rob.enqueue(entry);
 								instruction.setRobIndex(robIndex);
 								physicalRegister=urf.getFreePhysicalRegister();
@@ -142,6 +144,7 @@ public class PrepareInstruction {
 								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
 								entry=createROBEntry(instruction);
 								entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
+								entry.setInstructionType(Constants.LOAD);
 								robIndex=rob.enqueue(entry);
 								instruction.setRobIndex(robIndex);
 								physicalRegister=urf.getFreePhysicalRegister();
@@ -156,6 +159,7 @@ public class PrepareInstruction {
 								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
 								instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
 								entry=createROBEntry(instruction);
+								entry.setInstructionType(Constants.STORE);
 								robIndex=rob.enqueue(entry);
 								instruction.setRobIndex(robIndex);
 								issueQueue.putInstruction(instruction);
@@ -166,6 +170,7 @@ public class PrepareInstruction {
 			case Constants.BAL:
 			case Constants.JUMP:
 								entry=createROBEntry(instruction);
+								entry.setInstructionType(Constants.BRANCH);
 								robIndex=rob.enqueue(entry);
 								instruction.setRobIndex(robIndex);
 								instruction.setDest_physical(null);
