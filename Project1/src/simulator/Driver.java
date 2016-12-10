@@ -43,12 +43,12 @@ public class Driver {
 							simulator.initialize(Integer.parseInt(input));
 							break;
 					case 2:
-							int i=0;
+							int i=1;
 							System.out.println("\nEnter no. of cycles : ");
 							input = in.nextLine();
 							specifiedNoOfCycles = Integer.parseInt(input);
-							while(i < specifiedNoOfCycles){
-								simulator.execute();
+							while(i <= specifiedNoOfCycles){
+								simulator.execute(i);
 								i++;
 							}
 							break;

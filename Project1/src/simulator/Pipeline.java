@@ -15,6 +15,7 @@ public class Pipeline {
 	private static List<Instruction> selectInstruction = new ArrayList<Instruction>();
 	private static Integer [] memory = new Integer[4000];
 	private int min_cycle=9999;
+	private int cycle=0;
 	private static int programCounter;
 	private String fetchInst;
 	boolean stall = false;
@@ -27,6 +28,7 @@ public class Pipeline {
 	private UnifiedRegisterFile urf;
 	private IssueQueue issueQueue;
 	private PrepareInstruction prepareInstruction;
+	
 	
 	public void initialize(int urfSize) {
 		
@@ -67,8 +69,9 @@ public class Pipeline {
 	}
 	
 	
-	public void execute() {
+	public void execute(int cycleNumber) {
 	
+		cycle = cycleNumber;
 		System.out.println();
 		writeback();
 		executeStage();
@@ -319,6 +322,7 @@ public class Pipeline {
 			if((fetchInst = Cache.getInstruction()) != null) {
 				
 				Instruction newInstruction = new Instruction();
+				newInstruction.setCycle(cycle);
 				newInstruction.setInstruction(fetchInst);
 				newInstruction.setPc_value(programCounter);
 				stages.put(Constants.FETCH, newInstruction);

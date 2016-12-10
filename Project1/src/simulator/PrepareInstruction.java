@@ -126,8 +126,6 @@ public class PrepareInstruction {
 								issueQueue.putInstruction(instruction);
 								break;
 			case Constants.MOVC:
-								instruction.setSrc1Valid(true);
-								instruction.setSrc2Valid(true);
 								entry=createROBEntry(instruction);
 								entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
 								robIndex=rob.enqueue(entry);
@@ -142,7 +140,6 @@ public class PrepareInstruction {
 								break;
 			case Constants.LOAD:
 								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
-								instruction.setSrc2Valid(true);
 								entry=createROBEntry(instruction);
 								entry.setSavedRATEntry(urf.getFrontEndRat().get(instruction.getDestination()));
 								robIndex=rob.enqueue(entry);
