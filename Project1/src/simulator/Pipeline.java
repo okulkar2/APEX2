@@ -79,6 +79,7 @@ public class Pipeline {
 		urf.displayFrontEndRAT();
 		urf.displayPhysicalRegisters();
 		urf.displayFreeList();
+		System.out.println("Issue queue size : "+issueQueue.getSize());
 		//issueQueue.display();
 	}
 
@@ -262,13 +263,15 @@ public class Pipeline {
 				prepareInstruction.addEntries(instruction);
 				stages.put(Constants.R2_DISPATCH, instruction);
 				stages.put(Constants.DECODE_R1, null);
+				Flag.setStallFlag(false);
 			}  
-		}
+		} else
+			Flag.setStallFlag(true);
 	}
 	
 	private void decodeRename1() {
 			
-		if (stages.get(Constants.FETCH) != null) {
+		if (!Flag.isStallFlagSet() && stages.get(Constants.FETCH) != null) {
 			
 			Instruction instruction=stages.get(Constants.FETCH);
 			String[] tokens = instruction.getInstruction().split("[ ,#]+");
@@ -301,7 +304,7 @@ public class Pipeline {
 	
 	public void fetch() {
 
-		if(stages.get(Constants.FETCH) == null && !Flag.isBranchFlagSet()) {
+		if(!Flag.isStallFlagSet() && stages.get(Constants.FETCH) == null && !Flag.isBranchFlagSet()) {
 			
 			if((fetchInst = Cache.getInstruction()) != null) {
 				

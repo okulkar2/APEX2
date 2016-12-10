@@ -69,7 +69,7 @@ public class IssueQueue {
 	}
 
 	public boolean isIQFull() {
-		if(issueQueueInstructions.size() <= iqCapacity){
+		if(issueQueueInstructions.size() < iqCapacity){
 			return true;
 		}
 		return false;
