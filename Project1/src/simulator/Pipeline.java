@@ -73,6 +73,7 @@ public class Pipeline {
 	
 		cycle = cycleNumber;
 		System.out.println();
+		System.out.println("Cycle number : "+cycle);
 		writeback();
 		executeStage();
 		rename2Dispatch();
@@ -89,7 +90,6 @@ public class Pipeline {
 
 	private void writeback() {
 		
-		rob.retire();
 		
 		if(stages.get(Constants.ALU2)!=null) {
 			
@@ -119,8 +119,12 @@ public class Pipeline {
 			
 			Instruction lsInstruction=stages.get(Constants.LSFU2);
 			rob.getROBEntry(lsInstruction.getRobIndex()).setResult(lsInstruction.getDestValue());
+			rob.getROBEntry(lsInstruction.getRobIndex()).setStatus(true);
 			stages.put(Constants.LSFU2, null);
 		}
+		
+		rob.retire();
+		urf.displayFreeList();
 	}
 	
 	
@@ -138,6 +142,7 @@ public class Pipeline {
 			switch(selectedInstruction.getFunction_unit()){
 			case Constants.INTFU:
 				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isINTFUAvailable()){
+					System.out.println("SOP1");
 					selectInstruction.add(selectedInstruction);
 				}
 				break;
@@ -202,10 +207,12 @@ public class Pipeline {
 	
 	private void executeStage() {
 		
+		resolveDependencies();
 		aluFU.performOperation();
 		multiplyFU.performOperation();
 		loadStoreFU.performOperation();
 		
+		issueQueue.display();
 		Instruction currentInstruction=selectionIntruction();
 		//Instruction currentInstruction=stages.get(Constants.R2_DISPATCH);
 		if(currentInstruction!=null && !currentInstruction.getOperand().equalsIgnoreCase(Constants.HALT)) {
@@ -258,6 +265,23 @@ public class Pipeline {
 			}
 		}
 	}
+	
+	private void resolveDependencies() {
+		
+		List<Instruction> instructionList=issueQueue.getIssueQueueInstructions();
+		if(instructionList!=null && !instructionList.isEmpty()) {
+			
+			for(Instruction instruction : instructionList) {
+				
+				if(!instruction.isSrc1Valid()) 	
+					instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
+				
+				if(!instruction.isSrc2Valid())
+					instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
+			}
+		}
+	}
+	
 	
 	public void flushFrontEndStages() {
 		
