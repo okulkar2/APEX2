@@ -56,10 +56,6 @@ public class IssueQueue {
 		return issueQueueInstructions.get(index);
 	}
 	
-	public void removeInstruction(int index){
-		issueQueueInstructions.remove(index);
-	}
-	
 	public void putInstruction(Instruction issueQueueInstruction) {
 		issueQueueInstructions.add(issueQueueInstruction);
 	}
@@ -73,6 +69,22 @@ public class IssueQueue {
 			return true;
 		}
 		return false;
+	}
+	
+	public void removeInstruction(Instruction inputInst){
+		Instruction currentInst=null;
+		int size = issueQueueInstructions.size();
+		int i=0;
+		
+		while(i<size){
+			currentInst = issueQueueInstructions.get(i);
+			if(currentInst.getPc_value() == inputInst.getPc_value()){
+				issueQueueInstructions.remove(i);
+				break;
+			}
+			i++;
+		}
+		
 	}
 	
 	public void display() {
