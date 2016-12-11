@@ -26,11 +26,8 @@ public class BranchFU {
 			break;
 		
 			case "BAL":
-				if(Pipeline.getStages().get("D/RF")!= null){
-					Instruction aluInstruction = Pipeline.getStages().get("D/RF");
-					Pipeline.setSpecialRegister("X", aluInstruction.getPc_value());
-				}
 				result = inputInst.getSrc1Value()+inputInst.getLiteral();
+				Pipeline.setSpecialRegister("X", inputInst.getPc_value()+4);
 				Flag.setBranchFlag(true);
 			break;
 			}

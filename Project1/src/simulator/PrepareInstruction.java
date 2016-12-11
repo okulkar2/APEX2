@@ -162,7 +162,11 @@ public class PrepareInstruction {
 								break;
 			case Constants.BZ:
 			case Constants.BNZ:
-								
+								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
+								entry=createROBEntry(instruction);
+								robIndex=rob.enqueue(entry);
+								instruction.setRobIndex(robIndex);
+								issueQueue.putInstruction(instruction);
 			case Constants.BAL:
 			case Constants.JUMP:
 								entry=createROBEntry(instruction);
