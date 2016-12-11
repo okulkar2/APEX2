@@ -2,7 +2,7 @@ package simulator;
 
 public final class Constants {
 
-	// Pipeline stages
+		// Pipeline stages
 		public static final String FETCH="Fetch";
 		public static final String DECODE_R1="Decode/Rename1";
 		public static final String R2_DISPATCH="Rename2/Dispatch";
@@ -17,7 +17,10 @@ public final class Constants {
 		public static final String LSFU1="LSFU1";
 		public static final String LSFU2="LSFU2";
 		public static final String MEM="Mem";
-		public static final String WB="Writeback";
+		public static final String WBALU="WBALU";
+		public static final String WBMUL="WBMUL";
+		public static final String WBBranch="WBBRANCH";
+		public static final String WBLSFU="WBLSFU";
 		
 		// Instruction opcodes
 		public static final String ADD="ADD";

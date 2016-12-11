@@ -74,6 +74,7 @@ public class Pipeline {
 		cycle = cycleNumber;
 		System.out.println();
 		System.out.println("Cycle number : "+cycle);
+		write();
 		writeback();
 		executeStage();
 		rename2Dispatch();
@@ -89,8 +90,20 @@ public class Pipeline {
 		//issueQueue.display();
 	}
 
-	private void writeback() {
+	private void write() {
 		
+		if(stages.get(Constants.WBALU)!=null)
+			stages.put(Constants.WBALU, null);
+		if(stages.get(Constants.WBMUL)!=null)
+			stages.put(Constants.WBMUL, null);
+		if(stages.get(Constants.WBBranch)!=null)
+			stages.put(Constants.WBBranch, null);
+		if(stages.get(Constants.WBLSFU)!=null)
+			stages.put(Constants.WBLSFU, null);
+	}
+	
+	
+	private void writeback() {
 		
 		if(stages.get(Constants.ALU2)!=null) {
 			
@@ -100,8 +113,9 @@ public class Pipeline {
 			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValue(aluInstruction.getDestValue());
 			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValid(true);
 			stages.put(Constants.ALU2, null);
-			
-		}
+			stages.put(Constants.WBALU, aluInstruction);
+		} else
+			stages.put(Constants.WBALU, null);
 		
 		if(stages.get(Constants.MUL4)!=null) {
 			
@@ -113,8 +127,10 @@ public class Pipeline {
 			stages.put(Constants.MUL4, null);
 			stages.put(Constants.MUL1, null);
 			Flag.setMULFUAvailable(true);
+			stages.put(Constants.WBMUL, mulInstruction);
 			// setMUL flag available
-		}
+		} else
+			stages.put(Constants.WBMUL, null);
 		
 		if(stages.get(Constants.LSFU2)!=null) {
 			
@@ -129,7 +145,10 @@ public class Pipeline {
 				rob.getROBEntry(lsInstruction.getRobIndex()).setStatus(true);
 			
 			stages.put(Constants.LSFU2, null);
-		}
+			stages.put(Constants.WBLSFU, lsInstruction);
+		
+		} else
+			stages.put(Constants.WBLSFU, null);
 		
 		rob.printROB();
 		rob.retire();
@@ -652,6 +671,30 @@ public class Pipeline {
 		}
 		else{
 			System.out.println("LSFU2 Stage: NOP");
+		}
+		if(stages.get(Constants.WBALU)!=null){
+			System.out.println("WB ALU Stage:"+stages.get(Constants.WBALU).getInstruction());
+		}
+		else{
+			System.out.println("WB ALU Stage: NOP");
+		}
+		if(stages.get(Constants.WBMUL)!=null){
+			System.out.println("WB MUL Stage:"+stages.get(Constants.WBMUL).getInstruction());
+		}
+		else{
+			System.out.println("WB MUL Stage: NOP");
+		}
+		if(stages.get(Constants.WBBranch)!=null){
+			System.out.println("WB BRANCH Stage:"+stages.get(Constants.WBBranch).getInstruction());
+		}
+		else{
+			System.out.println("WB BRANCH Stage: NOP");
+		}
+		if(stages.get(Constants.WBLSFU)!=null){
+			System.out.println("WB LOAD/STORE Stage:"+stages.get(Constants.WBLSFU).getInstruction());
+		}
+		else{
+			System.out.println("WB LOAD/STORE Stage: NOP");
 		}
 	}
 }
