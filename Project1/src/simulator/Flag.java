@@ -11,6 +11,7 @@ public class Flag {
 	private static boolean MULFUAvailable;
 	private static boolean LSFUAvailable;
 	private static boolean BRANCHFUAvailable;
+	private static boolean LSDone;
 	
 	public static void initializeFlags(){
 		stallFlag = false;
@@ -18,6 +19,7 @@ public class Flag {
 		forwardEXFlag = false;
 		forwardMEMFlag = false;
 		branchFlag = false;
+		LSDone = true;
 		INTFUAvailable = true;
 		MULFUAvailable = true;
 		LSFUAvailable = true;
@@ -25,6 +27,21 @@ public class Flag {
 	}
 
 	
+	
+
+	public static boolean isLSDone() {
+		return LSDone;
+	}
+
+
+
+
+	public static void setLSDone(boolean lSDoneIn) {
+		LSDone = lSDoneIn;
+	}
+
+
+
 
 	/**
 	 * @return the iNTFUAvailable

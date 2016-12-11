@@ -92,49 +92,37 @@ public class Pipeline {
 
 	private void write() {
 		
-		if(stages.get(Constants.WBALU)!=null)
-			stages.put(Constants.WBALU, null);
-		if(stages.get(Constants.WBMUL)!=null)
-			stages.put(Constants.WBMUL, null);
-		if(stages.get(Constants.WBBranch)!=null)
-			stages.put(Constants.WBBranch, null);
-		if(stages.get(Constants.WBLSFU)!=null)
-			stages.put(Constants.WBLSFU, null);
-	}
-	
-	
-	private void writeback() {
-		
-		if(stages.get(Constants.ALU2)!=null) {
+		if(stages.get(Constants.WBALU)!=null) {
 			
-			Instruction aluInstruction=stages.get(Constants.ALU2);
+			Instruction aluInstruction=stages.get(Constants.WBALU);
 			rob.getROBEntry(aluInstruction.getRobIndex()).setResult(aluInstruction.getDestValue());
 			rob.getROBEntry(aluInstruction.getRobIndex()).setStatus(true);
-			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValue(aluInstruction.getDestValue());
+			//urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValue(aluInstruction.getDestValue());
 			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValid(true);
-			stages.put(Constants.ALU2, null);
-			stages.put(Constants.WBALU, aluInstruction);
-		} else
 			stages.put(Constants.WBALU, null);
+		}
 		
-		if(stages.get(Constants.MUL4)!=null) {
+		if(stages.get(Constants.WBMUL)!=null) {
 			
-			Instruction mulInstruction=stages.get(Constants.MUL4);
+			Instruction mulInstruction=stages.get(Constants.WBMUL);
 			rob.getROBEntry(mulInstruction.getRobIndex()).setResult(mulInstruction.getDestValue());
 			rob.getROBEntry(mulInstruction.getRobIndex()).setStatus(true);
-			urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValue(mulInstruction.getDestValue());
+			//urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValue(mulInstruction.getDestValue());
 			urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValid(true);
-			stages.put(Constants.MUL4, null);
-			stages.put(Constants.MUL1, null);
-			Flag.setMULFUAvailable(true);
-			stages.put(Constants.WBMUL, mulInstruction);
-			// setMUL flag available
-		} else
 			stages.put(Constants.WBMUL, null);
+		}
 		
-		if(stages.get(Constants.LSFU2)!=null) {
+		if(stages.get(Constants.WBBranch)!=null) {
 			
-			Instruction lsInstruction=stages.get(Constants.LSFU2);
+			Instruction branchInstruction=stages.get(Constants.WBBranch);
+			rob.getROBEntry(branchInstruction.getRobIndex()).setResult(branchInstruction.getDestValue());
+			rob.getROBEntry(branchInstruction.getRobIndex()).setStatus(true);
+			stages.put(Constants.WBBranch, null);
+		}
+		
+		if(stages.get(Constants.WBLSFU)!=null) {
+			
+			Instruction lsInstruction=stages.get(Constants.WBLSFU);
 			if(lsInstruction.getOperand().equalsIgnoreCase(Constants.LOAD)) {
 				
 				rob.getROBEntry(lsInstruction.getRobIndex()).setResult(lsInstruction.getDestValue());
@@ -143,16 +131,45 @@ public class Pipeline {
 			
 			} else if(lsInstruction.getOperand().equalsIgnoreCase(Constants.STORE))	
 				rob.getROBEntry(lsInstruction.getRobIndex()).setStatus(true);
+		
+			stages.put(Constants.WBLSFU, null);
+		}
+	}
+	
+	
+	private void writeback() {
+		
+		if(stages.get(Constants.ALU2)!=null) {
 			
+			Instruction aluInstruction=stages.get(Constants.ALU2);
+			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValue(aluInstruction.getDestValue());
+			stages.put(Constants.ALU2, null);
+			stages.put(Constants.WBALU, aluInstruction);
+		} 
+		
+		if(stages.get(Constants.MUL4)!=null) {
+			
+			Instruction mulInstruction=stages.get(Constants.MUL4);
+			urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValue(mulInstruction.getDestValue());
+			stages.put(Constants.MUL4, null);
+			stages.put(Constants.MUL1, null);
+			Flag.setMULFUAvailable(true);
+			stages.put(Constants.WBMUL, mulInstruction);
+		} 
+		
+		if(stages.get(Constants.LSFU2)!=null && Flag.isLSDone()) {
+			
+			Instruction lsInstruction=stages.get(Constants.LSFU2);
+			if(lsInstruction.getOperand().equalsIgnoreCase(Constants.LOAD))		
+				urf.getPhysicalRegisters().get(lsInstruction.getDest_physical()).setValue(lsInstruction.getDestValue());
+			
+			Flag.setLSDone(false);
 			stages.put(Constants.LSFU2, null);
 			stages.put(Constants.WBLSFU, lsInstruction);
-		
-		} else
-			stages.put(Constants.WBLSFU, null);
-		
-		rob.printROB();
+		}
+		//rob.printROB();
 		rob.retire();
-		urf.displayFreeList();
+		//urf.displayFreeList();
 	}
 	
 	
