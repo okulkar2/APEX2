@@ -113,6 +113,10 @@ public class PrepareInstruction {
 			case Constants.MUL:
 								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
 								instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
+								if(instruction.isSrc1Valid())
+									instruction.setSrc1Value(urf.getPhysicalRegisters().get(instruction.getSource1()).getValue());
+								if(instruction.isSrc2Valid())
+									instruction.setSrc2Value(urf.getPhysicalRegisters().get(instruction.getSource2()).getValue());
 								physicalRegister=urf.getFreePhysicalRegister();
 								instruction.setDest_physical(physicalRegister);
 								entry=createROBEntry(instruction);
@@ -140,6 +144,8 @@ public class PrepareInstruction {
 								break;
 			case Constants.LOAD:
 								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
+								if(instruction.isSrc1Valid())
+									instruction.setSrc1Value(urf.getPhysicalRegisters().get(instruction.getSource1()).getValue());
 								physicalRegister=urf.getFreePhysicalRegister();
 								instruction.setDest_physical(physicalRegister);
 								entry=createROBEntry(instruction);
@@ -155,6 +161,10 @@ public class PrepareInstruction {
 			case Constants.STORE:
 								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
 								instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
+								if(instruction.isSrc1Valid())
+									instruction.setSrc1Value(urf.getPhysicalRegisters().get(instruction.getSource1()).getValue());
+								if(instruction.isSrc2Valid())
+									instruction.setSrc2Value(urf.getPhysicalRegisters().get(instruction.getSource2()).getValue());
 								instruction.setDest_physical(null);
 								entry=createROBEntry(instruction);
 								entry.setInstructionType(Constants.STORE);
@@ -165,6 +175,8 @@ public class PrepareInstruction {
 			case Constants.BZ:
 			case Constants.BNZ:
 								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
+								if(instruction.isSrc1Valid())
+									instruction.setSrc1Value(urf.getPhysicalRegisters().get(instruction.getSource1()).getValue());
 								instruction.setDest_physical(null);
 								entry=createROBEntry(instruction);
 								robIndex=rob.enqueue(entry);

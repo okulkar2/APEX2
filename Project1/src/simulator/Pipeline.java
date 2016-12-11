@@ -3,6 +3,7 @@ package simulator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class Pipeline {
@@ -28,6 +29,7 @@ public class Pipeline {
 	private UnifiedRegisterFile urf;
 	private IssueQueue issueQueue;
 	private PrepareInstruction prepareInstruction;
+	private Map<String,Integer> forwardedValues;
 	
 	
 	public void initialize(int urfSize) {
@@ -60,6 +62,8 @@ public class Pipeline {
 		aluFU=new ALUFU(Pipeline.this);
 		multiplyFU=new MultiplyFU(Pipeline.this);
 		loadStoreFU=new LoadStoreFU(rob);
+		
+		forwardedValues=new HashMap<String, Integer>();
 		
 		Flag.setINTFUAvailable(true);
 		Flag.setMULFUAvailable(true);
@@ -110,7 +114,7 @@ public class Pipeline {
 			//urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValue(mulInstruction.getDestValue());
 			urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValid(true);
 			stages.put(Constants.WBMUL, null);
-		}
+		} 
 		
 		if(stages.get(Constants.WBBranch)!=null) {
 			
@@ -139,34 +143,44 @@ public class Pipeline {
 	
 	private void writeback() {
 		
+		forwardedValues.clear();
+		
 		if(stages.get(Constants.ALU2)!=null) {
 			
 			Instruction aluInstruction=stages.get(Constants.ALU2);
 			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValue(aluInstruction.getDestValue());
+			forwardedValues.put(aluInstruction.getDest_physical(), aluInstruction.getDestValue());
 			stages.put(Constants.ALU2, null);
 			stages.put(Constants.WBALU, aluInstruction);
-		} 
+		} else
+			stages.put(Constants.WBALU, null);
 		
 		if(stages.get(Constants.MUL4)!=null) {
 			
 			Instruction mulInstruction=stages.get(Constants.MUL4);
 			urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValue(mulInstruction.getDestValue());
+			forwardedValues.put(mulInstruction.getDest_physical(), mulInstruction.getDestValue());
 			stages.put(Constants.MUL4, null);
+			stages.put(Constants.MUL3, null);
+			stages.put(Constants.MUL2, null);
 			stages.put(Constants.MUL1, null);
 			Flag.setMULFUAvailable(true);
 			stages.put(Constants.WBMUL, mulInstruction);
-		} 
+		} else 
+			stages.put(Constants.WBMUL, null);
 		
 		if(stages.get(Constants.LSFU2)!=null && Flag.isLSDone()) {
 			
 			Instruction lsInstruction=stages.get(Constants.LSFU2);
-			if(lsInstruction.getOperand().equalsIgnoreCase(Constants.LOAD))		
+			if(lsInstruction.getOperand().equalsIgnoreCase(Constants.LOAD))	{	
 				urf.getPhysicalRegisters().get(lsInstruction.getDest_physical()).setValue(lsInstruction.getDestValue());
-			
+				forwardedValues.put(lsInstruction.getDest_physical(), lsInstruction.getDestValue());
+			}
 			Flag.setLSDone(false);
 			stages.put(Constants.LSFU2, null);
 			stages.put(Constants.WBLSFU, lsInstruction);
-		}
+		} else
+			stages.put(Constants.WBLSFU, null);
 		//rob.printROB();
 		rob.retire();
 		//urf.displayFreeList();
@@ -187,7 +201,6 @@ public class Pipeline {
 			switch(selectedInstruction.getFunction_unit()){
 			case Constants.INTFU:
 				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isINTFUAvailable()){
-					System.out.println("SOP1");
 					selectInstruction.add(selectedInstruction);
 				}
 				break;
@@ -215,8 +228,6 @@ public class Pipeline {
 			}
 			
 			System.out.println("Selected instruction "+selectedInstruction);
-			System.out.println("src1 valid "+selectedInstruction.isSrc1Valid());
-			System.out.println("src2 valid "+selectedInstruction.isSrc2Valid());
 			if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isLSFUAvailable()){
 				selectInstruction.add(selectedInstruction);
 			}
@@ -275,7 +286,7 @@ public class Pipeline {
 									if(stages.get(Constants.ALU1)==null) {
 										
 										stages.put(Constants.ALU1, currentInstruction);
-										readSourceValues(currentInstruction);
+										//readSourceValues(currentInstruction);
 										Flag.setINTFUAvailable(false);
 									}
 									break;
@@ -284,7 +295,7 @@ public class Pipeline {
 									if(stages.get(Constants.MUL1)==null) {
 										
 										stages.put(Constants.MUL1, currentInstruction);
-										readSourceValues(currentInstruction);
+										//readSourceValues(currentInstruction);
 										Flag.setMULFUAvailable(false);
 										result=FunctionUnit.executeIntruction(currentInstruction);
 										currentInstruction.setDestValue(result);
@@ -305,7 +316,7 @@ public class Pipeline {
 									if(stages.get(Constants.LSFU1)==null) {
 						
 										stages.put(Constants.LSFU1, currentInstruction);
-										readSourceValues(currentInstruction);
+										//readSourceValues(currentInstruction);
 										Flag.setLSFUAvailable(false);
 										result=FunctionUnit.executeIntruction(currentInstruction);
 										currentInstruction.setDestValue(result);
@@ -326,11 +337,46 @@ public class Pipeline {
 			
 			for(Instruction instruction : instructionList) {
 				
-				if(!instruction.isSrc1Valid()) 	
-					instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
+				for(Entry<String, Integer> entry : forwardedValues.entrySet()) {
+					
+					if(!instruction.isSrc1Valid()) {
+						
+						if(instruction.getSource1().equalsIgnoreCase(entry.getKey())) {
+							
+							instruction.setSrc1Value(entry.getValue());
+							instruction.setSrc1Valid(true);
+						}
+					}
+					
+					if(!instruction.isSrc2Valid()) {
+						
+						if(instruction.getSource2().equalsIgnoreCase(entry.getKey())) {
+							
+							instruction.setSrc2Value(entry.getValue());
+							instruction.setSrc2Valid(true);
+						}
+					}
+				}
 				
-				if(!instruction.isSrc2Valid())
-					instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
+				/*
+				if(!instruction.isSrc1Valid()) 	{
+					
+					if(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid()) {
+					
+						instruction.setSrc1Valid(true);
+						instruction.setSrc1Value(urf.getPhysicalRegisters().get(instruction.getSource1()).getValue());
+					}
+				}
+				
+				if(!instruction.isSrc2Valid()) {
+					
+					System.out.println("SOP1");
+					if(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid()) {
+						
+						instruction.setSrc2Valid(true);
+						instruction.setSrc2Value(urf.getPhysicalRegisters().get(instruction.getSource2()).getValue());
+					}
+				}*/
 			}
 		}
 	}
