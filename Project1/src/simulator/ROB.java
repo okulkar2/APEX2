@@ -107,6 +107,9 @@ public class ROB {
 			return false;
 	}
 	
+	public ROBEntry getROBHead(){
+		return queue[front];
+	}
 	
 	public void retire() {
 		

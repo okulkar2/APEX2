@@ -59,7 +59,7 @@ public class Pipeline {
 		
 		aluFU=new ALUFU(Pipeline.this);
 		multiplyFU=new MultiplyFU(Pipeline.this);
-		loadStoreFU=new LoadStoreFU(Pipeline.this);
+		loadStoreFU=new LoadStoreFU(rob);
 		
 		Flag.setINTFUAvailable(true);
 		Flag.setMULFUAvailable(true);
