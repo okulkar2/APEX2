@@ -84,6 +84,7 @@ public class Pipeline {
 		urf.displayArchRegisters();
 		urf.displayPhysicalRegisters();
 		urf.displayFreeList();
+		rob.printROB();
 		System.out.println("Issue queue size : "+issueQueue.getSize());
 		//issueQueue.display();
 	}
@@ -130,6 +131,7 @@ public class Pipeline {
 			stages.put(Constants.LSFU2, null);
 		}
 		
+		rob.printROB();
 		rob.retire();
 		urf.displayFreeList();
 	}

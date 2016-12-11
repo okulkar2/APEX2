@@ -143,16 +143,15 @@ public class ROB {
 			System.out.println("Rat entry is null");
 	}
 	
-	/*public void printQueue(){
+	public void printROB(){
 		
 		if(rear==-1 && front==-1){
-			System.out.println("Queue is Empty");
+			System.out.println("ROB is Empty");
 			return;
 		}
-		System.out.print("Queue Elements:");
+		System.out.println("ROB Elements:");
 		for(int i=front;i<=rear;i++){
-			System.out.print(queue[i]+" ");
+			System.out.println(queue[i].toString()+" ");
 		}
-		System.out.print("\n");
-	}*/
+	}
 }

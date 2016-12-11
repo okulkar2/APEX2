@@ -57,4 +57,8 @@ public class ROBEntry {
 	public void setInstructionType(String instructionType) {
 		this.instructionType = instructionType;
 	}
+	
+	public String toString(){
+		return "Architectural Dest: "+destArch+" Physical Dest: "+destPhysical+" Saved RAT Entry: "+savedRATEntry+" Result: "+result;
+	}
 }
