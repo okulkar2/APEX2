@@ -14,6 +14,7 @@ public class BranchFU {
 			break;
 
 			case "BNZ":
+				
 				if(inputInst.getSrc1Value() != 0){
 					result = inputInst.getPc_value()+inputInst.getLiteral();
 					Flag.setBranchFlag(true);
