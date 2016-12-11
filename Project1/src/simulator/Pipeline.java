@@ -73,6 +73,7 @@ public class Pipeline {
 	
 		cycle = cycleNumber;
 		System.out.println();
+		System.out.println("Cycle number : "+cycle);
 		writeback();
 		executeStage();
 		rename2Dispatch();
@@ -89,7 +90,6 @@ public class Pipeline {
 
 	private void writeback() {
 		
-		rob.retire();
 		
 		if(stages.get(Constants.ALU2)!=null) {
 			
@@ -118,9 +118,20 @@ public class Pipeline {
 		if(stages.get(Constants.LSFU2)!=null) {
 			
 			Instruction lsInstruction=stages.get(Constants.LSFU2);
-			rob.getROBEntry(lsInstruction.getRobIndex()).setResult(lsInstruction.getDestValue());
+			if(lsInstruction.getOperand().equalsIgnoreCase(Constants.LOAD)) {
+				
+				rob.getROBEntry(lsInstruction.getRobIndex()).setResult(lsInstruction.getDestValue());
+				rob.getROBEntry(lsInstruction.getRobIndex()).setStatus(true);
+				urf.getPhysicalRegisters().get(lsInstruction.getDest_physical()).setValid(true);
+			
+			} else if(lsInstruction.getOperand().equalsIgnoreCase(Constants.STORE))	
+				rob.getROBEntry(lsInstruction.getRobIndex()).setStatus(true);
+			
 			stages.put(Constants.LSFU2, null);
 		}
+		
+		rob.retire();
+		urf.displayFreeList();
 	}
 	
 	
@@ -138,6 +149,7 @@ public class Pipeline {
 			switch(selectedInstruction.getFunction_unit()){
 			case Constants.INTFU:
 				if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isINTFUAvailable()){
+					System.out.println("SOP1");
 					selectInstruction.add(selectedInstruction);
 				}
 				break;
@@ -163,6 +175,10 @@ public class Pipeline {
 					selectedInstruction = LSInstructions.get(i);
 				}
 			}
+			
+			System.out.println("Selected instruction "+selectedInstruction);
+			System.out.println("src1 valid "+selectedInstruction.isSrc1Valid());
+			System.out.println("src2 valid "+selectedInstruction.isSrc2Valid());
 			if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isLSFUAvailable()){
 				selectInstruction.add(selectedInstruction);
 			}
@@ -202,10 +218,12 @@ public class Pipeline {
 	
 	private void executeStage() {
 		
+		resolveDependencies();
 		aluFU.performOperation();
 		multiplyFU.performOperation();
 		loadStoreFU.performOperation();
 		
+		issueQueue.display();
 		Instruction currentInstruction=selectionIntruction();
 		//Instruction currentInstruction=stages.get(Constants.R2_DISPATCH);
 		if(currentInstruction!=null && !currentInstruction.getOperand().equalsIgnoreCase(Constants.HALT)) {
@@ -219,6 +237,7 @@ public class Pipeline {
 									if(stages.get(Constants.ALU1)==null) {
 										
 										stages.put(Constants.ALU1, currentInstruction);
+										readSourceValues(currentInstruction);
 										Flag.setINTFUAvailable(false);
 									}
 									break;
@@ -227,6 +246,7 @@ public class Pipeline {
 									if(stages.get(Constants.MUL1)==null) {
 										
 										stages.put(Constants.MUL1, currentInstruction);
+										readSourceValues(currentInstruction);
 										Flag.setMULFUAvailable(false);
 										result=FunctionUnit.executeIntruction(currentInstruction);
 										currentInstruction.setDestValue(result);
@@ -247,6 +267,7 @@ public class Pipeline {
 									if(stages.get(Constants.LSFU1)==null) {
 						
 										stages.put(Constants.LSFU1, currentInstruction);
+										readSourceValues(currentInstruction);
 										Flag.setLSFUAvailable(false);
 										result=FunctionUnit.executeIntruction(currentInstruction);
 										currentInstruction.setDestValue(result);
@@ -258,6 +279,24 @@ public class Pipeline {
 			}
 		}
 	}
+	
+	private void resolveDependencies() {
+		
+		List<Instruction> instructionList=issueQueue.getIssueQueueInstructions();
+		
+		if(instructionList!=null && !instructionList.isEmpty()) {
+			
+			for(Instruction instruction : instructionList) {
+				
+				if(!instruction.isSrc1Valid()) 	
+					instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
+				
+				if(!instruction.isSrc2Valid())
+					instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
+			}
+		}
+	}
+	
 	
 	public void flushFrontEndStages() {
 		
@@ -277,7 +316,9 @@ public class Pipeline {
 				stages.put(Constants.R2_DISPATCH, instruction);
 				stages.put(Constants.DECODE_R1, null);
 				Flag.setStallFlag(false);
-			}  
+			
+			}  else
+				stages.put(Constants.R2_DISPATCH, null);
 		} else
 			Flag.setStallFlag(true);
 	}

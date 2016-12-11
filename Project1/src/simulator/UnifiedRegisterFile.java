@@ -33,11 +33,15 @@ public class UnifiedRegisterFile {
 		for(int i=0;i<numPhysicalRegisters;i++) 
 			physicalRegisters.put("P"+i, new Register());
 		
-		for(int i=0;i<16;i++)
+		for(int i=0;i<16;i++) 
 			frontEndRat.put("R"+i, "P"+i);
 		
-		for(int i=0;i<numPhysicalRegisters;i++) 
-			freeList.put("P"+i,true);
+		for(int i=0;i<numPhysicalRegisters;i++) { 
+			if(i<16)
+				freeList.put("P"+i,false);
+			else
+				freeList.put("P"+i,true);
+		}
 	}
 	
 	public boolean isPhysicalRegisterAvailable() {

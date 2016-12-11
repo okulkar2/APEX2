@@ -41,4 +41,5 @@ public final class Constants {
 		public static final String BRANCHFU="BranchFU";
 		public static final String LSFU="LOADSTOREFU";	
 		
+		public static final String R2R="R2R";
 }
