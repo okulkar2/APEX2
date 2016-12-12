@@ -161,6 +161,8 @@ public class PrepareInstruction {
 			case Constants.STORE:
 								instruction.setSrc1Valid(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid());
 								instruction.setSrc2Valid(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid());
+								//System.out.println("Src1 valid : "+instruction.isSrc1Valid());
+								//System.out.println("Src2 valid : "+instruction.isSrc2Valid());
 								if(instruction.isSrc1Valid())
 									instruction.setSrc1Value(urf.getPhysicalRegisters().get(instruction.getSource1()).getValue());
 								if(instruction.isSrc2Valid())

@@ -89,8 +89,14 @@ public class Pipeline {
 		urf.displayArchRegisters();
 		urf.displayPhysicalRegisters();
 		urf.displayFreeList();
-		rob.printROB();
 		System.out.println("Issue queue size : "+issueQueue.getSize());
+		issueQueue.display();
+		rob.printROB();
+		for(int i=0;i<25;i++) 
+			System.out.print("mem["+i+"]"+memory[i]+",");
+		System.out.println();
+
+		//System.out.println("Issue queue size : "+issueQueue.getSize());
 		//issueQueue.display();
 	}
 
@@ -99,7 +105,7 @@ public class Pipeline {
 		if(stages.get(Constants.WBALU)!=null) {
 			
 			Instruction aluInstruction=stages.get(Constants.WBALU);
-			rob.getROBEntry(aluInstruction.getRobIndex()).setResult(aluInstruction.getDestValue());
+			//rob.getROBEntry(aluInstruction.getRobIndex()).setResult(aluInstruction.getDestValue());
 			rob.getROBEntry(aluInstruction.getRobIndex()).setStatus(true);
 			//urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValue(aluInstruction.getDestValue());
 			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValid(true);
@@ -109,7 +115,7 @@ public class Pipeline {
 		if(stages.get(Constants.WBMUL)!=null) {
 			
 			Instruction mulInstruction=stages.get(Constants.WBMUL);
-			rob.getROBEntry(mulInstruction.getRobIndex()).setResult(mulInstruction.getDestValue());
+			//rob.getROBEntry(mulInstruction.getRobIndex()).setResult(mulInstruction.getDestValue());
 			rob.getROBEntry(mulInstruction.getRobIndex()).setStatus(true);
 			//urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValue(mulInstruction.getDestValue());
 			urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValid(true);
@@ -119,7 +125,7 @@ public class Pipeline {
 		if(stages.get(Constants.WBBranch)!=null) {
 			
 			Instruction branchInstruction=stages.get(Constants.WBBranch);
-			rob.getROBEntry(branchInstruction.getRobIndex()).setResult(branchInstruction.getDestValue());
+			//rob.getROBEntry(branchInstruction.getRobIndex()).setResult(branchInstruction.getDestValue());
 			rob.getROBEntry(branchInstruction.getRobIndex()).setStatus(true);
 			stages.put(Constants.WBBranch, null);
 		}
@@ -129,7 +135,7 @@ public class Pipeline {
 			Instruction lsInstruction=stages.get(Constants.WBLSFU);
 			if(lsInstruction.getOperand().equalsIgnoreCase(Constants.LOAD)) {
 				
-				rob.getROBEntry(lsInstruction.getRobIndex()).setResult(lsInstruction.getDestValue());
+				//rob.getROBEntry(lsInstruction.getRobIndex()).setResult(lsInstruction.getDestValue());
 				rob.getROBEntry(lsInstruction.getRobIndex()).setStatus(true);
 				urf.getPhysicalRegisters().get(lsInstruction.getDest_physical()).setValid(true);
 			
@@ -149,6 +155,7 @@ public class Pipeline {
 			
 			Instruction aluInstruction=stages.get(Constants.ALU2);
 			urf.getPhysicalRegisters().get(aluInstruction.getDest_physical()).setValue(aluInstruction.getDestValue());
+			rob.getROBEntry(aluInstruction.getRobIndex()).setResult(aluInstruction.getDestValue());
 			forwardedValues.put(aluInstruction.getDest_physical(), aluInstruction.getDestValue());
 			stages.put(Constants.ALU2, null);
 			stages.put(Constants.WBALU, aluInstruction);
@@ -159,6 +166,7 @@ public class Pipeline {
 			
 			Instruction mulInstruction=stages.get(Constants.MUL4);
 			urf.getPhysicalRegisters().get(mulInstruction.getDest_physical()).setValue(mulInstruction.getDestValue());
+			rob.getROBEntry(mulInstruction.getRobIndex()).setResult(mulInstruction.getDestValue());
 			forwardedValues.put(mulInstruction.getDest_physical(), mulInstruction.getDestValue());
 			stages.put(Constants.MUL4, null);
 			stages.put(Constants.MUL3, null);
@@ -175,6 +183,7 @@ public class Pipeline {
 			if(lsInstruction.getOperand().equalsIgnoreCase(Constants.LOAD))	{	
 				urf.getPhysicalRegisters().get(lsInstruction.getDest_physical()).setValue(lsInstruction.getDestValue());
 				forwardedValues.put(lsInstruction.getDest_physical(), lsInstruction.getDestValue());
+				rob.getROBEntry(lsInstruction.getRobIndex()).setResult(lsInstruction.getDestValue());
 			}
 			Flag.setLSDone(false);
 			stages.put(Constants.LSFU2, null);
@@ -227,7 +236,7 @@ public class Pipeline {
 				}
 			}
 			
-			System.out.println("Selected instruction "+selectedInstruction);
+			//System.out.println("Selected instruction "+selectedInstruction);
 			if(selectedInstruction.isSrc1Valid()==true && selectedInstruction.isSrc2Valid()==true && Flag.isLSFUAvailable()){
 				selectInstruction.add(selectedInstruction);
 			}
@@ -267,12 +276,13 @@ public class Pipeline {
 	
 	private void executeStage() {
 		
-		resolveDependencies();
+		//resolveDependencies();
 		aluFU.performOperation();
 		multiplyFU.performOperation();
 		loadStoreFU.performOperation();
+		resolveDependencies();
 		
-		issueQueue.display();
+		//issueQueue.display();
 		Instruction currentInstruction=selectionIntruction();
 		//Instruction currentInstruction=stages.get(Constants.R2_DISPATCH);
 		if(currentInstruction!=null && !currentInstruction.getOperand().equalsIgnoreCase(Constants.HALT)) {
@@ -337,28 +347,35 @@ public class Pipeline {
 			
 			for(Instruction instruction : instructionList) {
 				
-				for(Entry<String, Integer> entry : forwardedValues.entrySet()) {
+				//System.out.println("Instruction : "+instruction.getInstruction());
+				
+				if(instruction.getOperand().equalsIgnoreCase(Constants.STORE)) {
 					
-					if(!instruction.isSrc1Valid()) {
+					performStoreDependency(instruction);
+					
+				} else {
+				
+					for(Entry<String, Integer> entry : forwardedValues.entrySet()) {
 						
-						if(instruction.getSource1().equalsIgnoreCase(entry.getKey())) {
-							
-							instruction.setSrc1Value(entry.getValue());
-							instruction.setSrc1Valid(true);
+						if(!instruction.isSrc1Valid()) {
+								
+							if(instruction.getSource1().equalsIgnoreCase(entry.getKey())) {
+								instruction.setSrc1Value(entry.getValue());
+								instruction.setSrc1Valid(true);
+							}
 						}
-					}
-					
-					if(!instruction.isSrc2Valid()) {
 						
-						if(instruction.getSource2().equalsIgnoreCase(entry.getKey())) {
+						if(!instruction.isSrc2Valid()) {
 							
-							instruction.setSrc2Value(entry.getValue());
-							instruction.setSrc2Valid(true);
+							if(instruction.getSource2().equalsIgnoreCase(entry.getKey())) {
+								
+								instruction.setSrc2Value(entry.getValue());
+								instruction.setSrc2Valid(true);
+							}
 						}
 					}
 				}
 				
-				/*
 				if(!instruction.isSrc1Valid()) 	{
 					
 					if(urf.getPhysicalRegisters().get(instruction.getSource1()).isValid()) {
@@ -370,15 +387,85 @@ public class Pipeline {
 				
 				if(!instruction.isSrc2Valid()) {
 					
-					System.out.println("SOP1");
+					//System.out.println("SOP1");
 					if(urf.getPhysicalRegisters().get(instruction.getSource2()).isValid()) {
 						
 						instruction.setSrc2Valid(true);
 						instruction.setSrc2Value(urf.getPhysicalRegisters().get(instruction.getSource2()).getValue());
 					}
-				}*/
+				}
+				
+				//System.out.println("Src1 valid : "+instruction.isSrc1Valid());
+				//System.out.println("Src2 valid : "+instruction.isSrc2Valid());
 			}
 		}
+	}
+	
+	
+	private void performStoreDependency(Instruction instruction) {
+		
+		Instruction aluInstruction=stages.get(Constants.ALU2);
+		Instruction mulInstruction=stages.get(Constants.MUL4);
+		Instruction lsfuInstruction=stages.get(Constants.LSFU2);
+		
+		if(!instruction.isSrc1Valid() && aluInstruction!=null) {
+				
+			//System.out.println("dest physical : "+aluInstruction.getDest_physical());
+			if(aluInstruction.getDest_physical().equalsIgnoreCase(instruction.getSource1())) {
+					
+				instruction.setSrc1Value(aluInstruction.getDestValue());
+				instruction.setSrc1Valid(true);
+				return;
+			}
+		}
+		
+		if(!instruction.isSrc1Valid() && mulInstruction!=null) {
+			
+			//System.out.println("dest physical : "+aluInstruction.getDest_physical());
+			if(mulInstruction.getDest_physical().equalsIgnoreCase(instruction.getSource1())) {
+					
+				instruction.setSrc1Value(mulInstruction.getDestValue());
+				instruction.setSrc1Valid(true);
+				return;
+			}
+		}
+		
+		/*
+		if(!instruction.isSrc1Valid() && lsfuInstruction!=null && lsfuInstruction.getOperand().equalsIgnoreCase(Constants.LOAD)) {
+			
+			if(lsfuInstruction.getDest_physical().equalsIgnoreCase(instruction.getSource1())) {
+				
+				instruction.setSrc1Value(lsfuInstruction.getDestValue());
+				instruction.setSrc1Valid(true);
+				return;
+			}
+		}*/
+		
+		for(Entry<String, Integer> entry : forwardedValues.entrySet()) {
+			
+			if(!instruction.isSrc1Valid()) {
+					
+				if(instruction.getSource1().equalsIgnoreCase(entry.getKey())) {
+					instruction.setSrc1Value(entry.getValue());
+					instruction.setSrc1Valid(true);
+				}
+			}
+			
+			if(!instruction.isSrc2Valid()) {
+				
+				if(instruction.getSource2().equalsIgnoreCase(entry.getKey())) {
+					instruction.setSrc2Value(entry.getValue());
+					instruction.setSrc2Valid(true);
+				}
+			}
+		}
+		
+		/*
+		if(urf.getPhysicalRegisters().get(instruction.getDest_physical()).isValid()) {
+			
+			instruction.setSrc1Value(urf.getPhysicalRegisters().get(instruction).getValue());
+			instruction.setSrc1Valid(true);
+		}*/
 	}
 	
 	
